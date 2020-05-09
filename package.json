@@ -1,0 +1,25 @@
+{
+  "name": "dockerbackup",
+  "version": "1.0.0",
+  "description": "register backup jobs in docker labels.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rafipiccolo/dockerbackup.git"
+  },
+  "author": "Raphael Piccolo",
+  "bugs": {
+    "url": "https://github.com/rafipiccolo/dockerbackup/issues"
+  },
+  "homepage": "https://github.com/rafipiccolo/dockerbackup#readme",
+
+  "license": "ISC",
+  "dependencies": {
+    "moment": "^2.25.3",
+    "shell-escape": "^0.2.0"
+  }
+}

@@ -1,0 +1,85 @@
+# Docker Backup
+
+register backup jobs in docker labels.
+
+
+# install
+
+- install dockerbackup on the backup server
+
+        git clone https://github.com/rafipiccolo/dockerbackup.git dockerbackup
+
+- verify that you can connect to the production server with ssh (using private key)
+
+        ssh root@exemple.com
+
+- on the production server
+
+    add labels to the containers you want to backup
+
+    exemple of docker-compose.yml :
+
+        version: "3.3"
+            services:
+                mongo:
+                    image: mongo
+                    container_name: mongo
+                    restart: always
+                    volumes:
+                        - ./mongo:/data/db
+                    labels:
+                        - "backup.driver=mongo"
+
+                mysql:
+                    image: mysql
+                    container_name: mysql
+                    restart: always
+                    environment:
+                        - MYSQL_ROOT_PASSWORD=${PASSWORD}
+                    volumes:
+                        - ./mysql:/var/lib/mysql
+                    labels:
+                        - "backup.driver=mysqldump"
+                        - "backup.ignore=sys,performance_schema,information_schema,mysql"
+                        #
+                        # dockerbackup will read env to get MYSQL_ROOT_PASSWORD automatically
+                        # 
+                        # you can ignore : (separate entries by ',')
+                        #   entire databases like this : sys,mysql
+                        #   or tables like this : test.tableA
+                        #   or both : sys,test.tableA
+
+                custom:
+                    build: ./custom
+                    restart: always
+                    working_dir: /usr/src/app
+                    volumes:
+                        - .:/usr/src/app
+                    ports:
+                        - 3000:3000
+                    command: node server.js
+                    labels:     
+                        - "backup.driver=rsync"
+                        # you can exclude directories, see rsync for details on the format
+                        - "backup.ignore=log/*.log"
+
+- on the backup server :
+
+    run dockerbackup
+
+        node index.js root exemple.com
+
+    mongodumps will be stored in /backup/{host}/{containerName}/mongodump/{now}/{db}.sql.gz
+    mysqldumps will be stored in /backup/{host}/{containerName}/mysqldump/{now}/{db}.archive
+    rsync backups will be stored in /backup/{host}/{containerName}/rsync/{now}
+
+
+# Update
+
+    cd dockerbackup
+    git pull
+
+# How it works
+
+We call docker inspect on the remote host from ssh to get all running containers labels.
+We parse it and execute a backup script for every job we found.
