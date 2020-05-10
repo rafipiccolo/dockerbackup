@@ -10,8 +10,8 @@ const rsync = require('./lib/rsync');
 const mysqldump = require('./lib/mysqldump');
 const mongodump = require('./lib/mongodump');
 
-const user = 'root';
-const host = 'localhost';
+const user = process.argv[2];
+const host = process.argv[3];
 
 main();
 
