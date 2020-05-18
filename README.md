@@ -73,6 +73,10 @@ register backup jobs in docker labels.
     mysqldumps will be stored in /backup/{host}/{containerName}/mysqldump/{now}/{db}.archive
     rsync backups will be stored in /backup/{host}/{containerName}/rsync/{now}
 
+# environment
+
+- VERBOSE : default false
+- INFLUXDB : specify an influxdb url to write metrics
 
 # Update
 

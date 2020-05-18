@@ -6,7 +6,6 @@
   "scripts": {
     "test": "node index.js"
   },
-  
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rafipiccolo/dockerbackup.git"
@@ -16,10 +15,11 @@
     "url": "https://github.com/rafipiccolo/dockerbackup/issues"
   },
   "homepage": "https://github.com/rafipiccolo/dockerbackup#readme",
-
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "moment": "^2.25.3",
+    "request": "^2.88.2",
     "shell-escape": "^0.2.0"
   }
 }

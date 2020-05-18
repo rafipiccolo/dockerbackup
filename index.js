@@ -1,4 +1,7 @@
+require('dotenv').config()
+
 const moment = require('moment');
+const request = require('request');
 const getDockerLabels = require('./lib/getDockerLabels');
 const parseContainer = require('./lib/parseContainer');
 const verbose = require('./lib/verbose');
@@ -12,6 +15,11 @@ const mongodump = require('./lib/mongodump');
 
 const user = process.argv[2];
 const host = process.argv[3];
+
+if (!user || !host) {
+    console.error('please specify a user and a hostname');
+    process.exit(1);
+}
 
 main();
 
@@ -39,6 +47,7 @@ async function main() {
                 }
                 const res = await rsync(params);
                 console.log(`${container.driver}@${container.name} done ${res.ms}ms ${res.size}o`);
+                influxdb({host: host, driver: container.driver, name: container.name, db:'-', ms: res.ms, size: res.size});
             }
             else if (container.driver == 'mysqldump') {
                 var dbs = await getMysqlDbs({
@@ -66,6 +75,7 @@ async function main() {
                     };
                     const res = await mysqldump(params);
                     console.log(`${container.driver}@${container.name}:${db} done ${res.ms}ms ${res.size}o`);
+                    influxdb({host: host, driver: container.driver, name: container.name, db:db, ms: res.ms, size: res.size});
                 }
             }
             else if (container.driver == 'mongodump') {
@@ -87,6 +97,7 @@ async function main() {
                     }
                     const res = await mongodump(params);
                     console.log(`${container.driver}@${container.name}:${db} done ${res.ms}ms ${res.size}o`);
+                    influxdb({host: host, driver: container.driver, name: container.name, db:db, ms: res.ms, size: res.size});
                 }
             }
             else {
@@ -97,4 +108,25 @@ async function main() {
     catch(e) {
         console.error(e);
     }
+}
+
+
+// INFLUXDB output
+function influxdb(data) {
+    if (!process.env.INFLUXDB) return;
+
+    var body = 'dockerbackup,host='+data.host+',name='+data.name+',driver='+data.driver+',db='+data.db+' ms='+data.ms+',size='+data.size+' '+(Date.now()*1000000);
+    verbose('curl -XPOST '+process.env.INFLUXDB+' --data-binary '+"'"+body+"'");
+    
+    request({
+        method: 'POST',
+        url: process.env.INFLUXDB,
+        body: body,
+        forever: true,
+    }, function(err, response, body) {
+        if (err) return console.error('Influxdb error', err);
+        if (parseInt(response.statusCode / 100) != 2) return console.error(new Error('Influxdb status code is '+response.statusCode));
+        
+        verbose('INFLUXDB OK');
+    });
 }
