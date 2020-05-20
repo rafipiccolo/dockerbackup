@@ -1,7 +1,21 @@
 # Docker Backup
 
 register backup jobs in docker labels.
+restore backups on any docker host
 
+# backup usage
+
+    node backup.js user host
+
+# restore usage
+
+    Automatic mode : inquire will ask questions
+        node restore.js
+    
+    Manual mode :
+        node restore.js remoteUser remoteHost remoteContainer filesToRestore
+        node restore.js root old2.gextra.net mysql /backup/flatbay.fr/mysql/mysqldump/2020-05-20--01/flatbay_prod.sql.gz
+    
 
 # install
 
@@ -67,7 +81,7 @@ register backup jobs in docker labels.
 
     run dockerbackup
 
-        node index.js root exemple.com
+        node backup.js root exemple.com
 
     mongodumps will be stored in /backup/{host}/{containerName}/mongodump/{now}/{db}.sql.gz
     mysqldumps will be stored in /backup/{host}/{containerName}/mysqldump/{now}/{db}.archive
