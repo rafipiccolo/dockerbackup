@@ -2,7 +2,7 @@ require('dotenv').config()
 
 const moment = require('moment');
 const request = require('request');
-const getDockerLabels = require('./lib/getDockerLabels');
+const getDockerInspect = require('./lib/getDockerInspect');
 const parseContainer = require('./lib/parseContainer');
 const verbose = require('./lib/verbose');
 const getLatestDir = require('./lib/getLatestDir');
@@ -26,8 +26,7 @@ main();
 async function main() {
     try {
         // get and parse labels from remote docker
-        var containers = await getDockerLabels({user, host});
-        containers = JSON.parse(containers);
+        var containers = await getDockerInspect({user, host});
         containers = containers.map(parseContainer).filter(container => container);
         
         verbose(`found ${containers.length} backup jobs`);
