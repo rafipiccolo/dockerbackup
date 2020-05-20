@@ -116,7 +116,7 @@ function influxdb(data) {
 
     var body = 'dockerbackup,host='+data.host+',name='+data.name+',driver='+data.driver+',db='+data.db+' ms='+data.ms+',size='+data.size+' '+(Date.now()*1000000);
     verbose('curl -XPOST '+process.env.INFLUXDB+' --data-binary '+"'"+body+"'");
-    
+
     request({
         method: 'POST',
         url: process.env.INFLUXDB,

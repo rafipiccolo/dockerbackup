@@ -91,6 +91,7 @@ restore backups on any docker host
 
 - VERBOSE : default false
 - INFLUXDB : specify an influxdb url to write metrics
+- DRYRUN : do not execute
 
 # Update
 

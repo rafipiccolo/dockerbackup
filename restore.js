@@ -4,6 +4,8 @@ var util = require('util');
 const getDockerInspect = require('./lib/getDockerInspect');
 var readdir = util.promisify(fs.readdir);
 var stat = util.promisify(fs.stat);
+const { exec } = require('child_process');
+const verbose = require('./lib/verbose');
 
 (async function() {
 
@@ -82,7 +84,15 @@ async function restore(options) {
         if ((await stat(options.path)).isDirectory() && options.path[options.path.length - 1] != '/')
             options.path = options.path + '/';
         var file = options.path.replace('/backup/'+server+'/'+container+'/'+driver+'/'+time+'/', '');
-        console.log('rsync -azP ' + options.path + ' '+options.remoteHost+':/root/docker/'+options.remoteContainer.name+'/'+file);
+        const params = {
+            host: options.remoteHost,
+            user: options.remoteUser,
+            dir: options.path,
+            output: '/root/docker/'+options.remoteContainer.name+'/'+file,
+            dryrun: process.env.DRYRUN || 0,
+        }
+        const res = await rsync(params);
+        console.log(`${container.driver}@${container.name} done ${res.ms}ms ${res.size}o`);
     }
     else if (driver == 'mysqldump') {
         var m = options.path.match(/([0-9a-zA-z_\-\.]+)\.sql\.gz$/);
@@ -95,8 +105,8 @@ async function restore(options) {
         else
             database = m[1];
 
-        console.log("echo 'create database if not exists "+database+"' | ssh "+options.remoteHost+" 'docker exec -i "+options.remoteContainer.name+" mysql -u root -p"+options.remoteContainer.env.MYSQL_ROOT_PASSWORD+"'");
-        console.log("cat "+options.path+" | gunzip | ssh "+options.remoteHost+" 'docker exec -i "+options.remoteContainer.name+" mysql -u root -p"+options.remoteContainer.env.MYSQL_ROOT_PASSWORD+" "+database+"'");
+        await execCommand("echo 'create database if not exists "+database+"' | ssh "+options.remoteHost+" 'docker exec -i "+options.remoteContainer.name+" mysql -u root -p"+options.remoteContainer.env.MYSQL_ROOT_PASSWORD+"'");
+        await execCommand("cat "+options.path+" | gunzip | ssh "+options.remoteHost+" 'docker exec -i "+options.remoteContainer.name+" mysql -u root -p"+options.remoteContainer.env.MYSQL_ROOT_PASSWORD+" "+database+"'");
     }
     else if (driver == 'mongodump') {
         var m = options.path.match(/([0-9a-zA-z_\-\.]+)\.archive$/);
@@ -109,7 +119,7 @@ async function restore(options) {
         else
             database = m[1];
         
-        console.log("cat "+options.path+" | ssh "+options.remoteHost+" 'docker exec -i "+options.remoteContainer.name+" mongorestore --gzip --archive'");
+        await execCommand("cat "+options.path+" | ssh "+options.remoteHost+" 'docker exec -i "+options.remoteContainer.name+" mongorestore --gzip --archive'");
     }
     else {
         throw 'bad driver';
@@ -154,4 +164,17 @@ async function askList(choices, question) {
     ];
     var answer = await inquirer.prompt(question);
     return answer.answer;
+}
+
+function execCommand(cmd) {
+    verbose(cmd)
+    if (process.env.DRYRUN) return;
+
+    return new Promise((resolve, reject) => {
+        exec(cmd, (error, stdout, stderr) => {
+            if (error) return reject(new error(`exec error: ${error}`))
+    
+            resolve(stdout);
+        });
+    })
 }
