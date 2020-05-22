@@ -124,7 +124,7 @@ function influxdb(data) {
         forever: true,
     }, function(err, response, body) {
         if (err) return console.error('Influxdb error', err);
-        if (parseInt(response.statusCode / 100) != 2) return console.error(new Error('Influxdb status code is '+response.statusCode));
+        if (parseInt(response.statusCode / 100) != 2) return console.error('Influxdb status code is '+response.statusCode, {body});
         
         verbose('INFLUXDB OK');
     });
