@@ -27,7 +27,7 @@ const verbose = require('./lib/verbose');
         console.log('');
         console.log('Manual mode :');
         console.log('    node restore.js remoteUser remoteHost remoteContainer filesToRestore');
-        console.log('    node restore.js root old2.gextra.net mysql /backup/flatbay.fr/mysql/mysqldump/2020-05-20--01/flatbay_prod.sql.gz');
+        console.log('    node restore.js root exemple.net mysql /backup/exemple.net/mysql/mysqldump/2020-05-20--01/exemple.sql.gz');
         console.log('');
         remoteUser = await askText('Remote user ?');
     }
