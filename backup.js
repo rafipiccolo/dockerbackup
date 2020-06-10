@@ -50,6 +50,7 @@ async function main() {
                     'docker/influxdb',
                     'docker/rtorrent/',
                     '.npm/',
+		    '.cache/',
                     '.vscode-server-insiders',
                     'log/',
                     'logs/',
