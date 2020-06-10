@@ -74,8 +74,9 @@ async function main() {
                     });
                     // on retire les db ignorées
                     container.ignore = container.ignore || [];
-                    var ignoredb = container.ignore.filter((ignore) => ignore.includes('.'))
+                    var ignoreTables = container.ignore.filter((ignore) => ignore.includes('.'))
                     dbs = dbs.filter((db) => !container.ignore.includes(db));
+		    
                     for (var db of dbs) {
 			const params = {
                             host: host,
@@ -86,7 +87,7 @@ async function main() {
                             dryrun: process.env.DRYRUN || 0,
                             db: db,
                             output: '/backup/'+host+'/'+container.name+'/mysqldump/'+now+'/'+db+'.sql.gz',
-                            ignoreTables: container.ignore.filter((ignore) => ignore.includes(db+'.')),
+                            ignoreTables: ignoreTables,
 			};
 			const res = await mysqldump(params);
 			console.log(`${container.driver}@${container.name}:${db} done ${res.ms}ms ${res.size}o`);
