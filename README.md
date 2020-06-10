@@ -7,15 +7,20 @@ restore backups on any docker host
 
     node backup.js user host
 
+optional filter [mysqldump/mongodump]
+
+    node backup.js user host mysqldump
+
 # restore usage
 
-    Automatic mode : inquire will ask questions
-        node restore.js
+Automatic mode : inquire will ask questions
+
+    node restore.js
     
-    Manual mode :
-        node restore.js remoteUser remoteHost remoteContainer filesToRestore
-        node restore.js root old2.gextra.net mysql /backup/flatbay.fr/mysql/mysqldump/2020-05-20--01/flatbay_prod.sql.gz
-    
+Manual mode :
+
+    node restore.js remoteUser remoteHost remoteContainer filesToRestore
+    node restore.js root exemple.net mysql /backup/exemple.net/mysql/mysqldump/2020-05-20--01/exemple.sql.gz 
 
 # install
 
@@ -70,6 +75,7 @@ restore backups on any docker host
         node backup.js root exemple.com
 
     mongodumps will be stored in /backup/{host}/{containerName}/mongodump/{now}/{db}.sql.gz
+
     mysqldumps will be stored in /backup/{host}/{containerName}/mysqldump/{now}/{db}.archive
 
 # environment
