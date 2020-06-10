@@ -63,20 +63,6 @@ restore backups on any docker host
                         #   or tables like this : test.tableA
                         #   or both : sys,test.tableA
 
-                custom:
-                    build: ./custom
-                    restart: always
-                    working_dir: /usr/src/app
-                    volumes:
-                        - .:/usr/src/app
-                    ports:
-                        - 3000:3000
-                    command: node server.js
-                    labels:     
-                        - "backup.driver=rsync"
-                        # you can exclude directories, see rsync for details on the format
-                        - "backup.ignore=log/*.log"
-
 - on the backup server :
 
     run dockerbackup
@@ -85,7 +71,6 @@ restore backups on any docker host
 
     mongodumps will be stored in /backup/{host}/{containerName}/mongodump/{now}/{db}.sql.gz
     mysqldumps will be stored in /backup/{host}/{containerName}/mysqldump/{now}/{db}.archive
-    rsync backups will be stored in /backup/{host}/{containerName}/rsync/{now}
 
 # environment
 
