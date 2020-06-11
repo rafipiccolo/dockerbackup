@@ -144,6 +144,7 @@ async function main() {
     }
     catch(e) {
         console.error(e);
+        influxdb({ host: host, driver: 'getdocker', name: '-', db: '-', error: 1 });
     }
 }
 
