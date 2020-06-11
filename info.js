@@ -1,6 +1,5 @@
 require('dotenv').config()
 const request = require('request');
-var Table = require('cli-table');
 
 var sql = process.argv[2] || 'select * from dockerbackup where error = 1';
 
