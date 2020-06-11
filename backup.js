@@ -73,13 +73,20 @@ async function main() {
         for (const container of containers) {
             if (!filter || filter == container.driver) {
                 if (container.driver == 'mysqldump') {
-                    var dbs = await getMysqlDbs({
-                        host: host,
-                        user: user,
-                        docker: container.id,
-                        mysqlUser: 'root',
-                        mysqlPassword: container.env.MYSQL_ROOT_PASSWORD||'root',
-                    });
+                    try {
+                        var dbs = await getMysqlDbs({
+                            host: host,
+                            user: user,
+                            docker: container.id,
+                            mysqlUser: 'root',
+                            mysqlPassword: container.env.MYSQL_ROOT_PASSWORD || 'root',
+                        });
+                    }
+                    catch (e) {
+                        console.error(`${container.driver}@${host}:${container.name} FAIL`, e);
+                        influxdb({ host: host, driver: container.driver, name: container.name, db: '-', error: 1 });
+                    }
+                    
                     // on retire les db ignorées
                     container.ignore = container.ignore || [];
                     var ignoreTables = container.ignore.filter((ignore) => ignore.includes('.'))
@@ -109,11 +116,18 @@ async function main() {
                     }
                 }
                 else if (container.driver == 'mongodump') {
-                    var dbs = await getMongoDbs({
-                        host: host,
-                        user: user,
-                        docker: container.id,
-                    });
+                    try {
+                        var dbs = await getMongoDbs({
+                            host: host,
+                            user: user,
+                            docker: container.id,
+                        });
+                    }
+                    catch (e) {
+                        console.error(`${container.driver}@${host}:${container.name} FAIL`, e);
+                        influxdb({ host: host, driver: container.driver, name: container.name, db: '-', error: 1 });
+                    }
+
                     // on retire les db ignorées
                     container.ignore = container.ignore || [];
                     for (var db of dbs) {
