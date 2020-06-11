@@ -73,8 +73,9 @@ async function main() {
         for (const container of containers) {
             if (!filter || filter == container.driver) {
                 if (container.driver == 'mysqldump') {
+                    var dbs = [];
                     try {
-                        var dbs = await getMysqlDbs({
+                        dbs = await getMysqlDbs({
                             host: host,
                             user: user,
                             docker: container.id,
@@ -116,8 +117,9 @@ async function main() {
                     }
                 }
                 else if (container.driver == 'mongodump') {
+                    var dbs = [];
                     try {
-                        var dbs = await getMongoDbs({
+                        dbs = await getMongoDbs({
                             host: host,
                             user: user,
                             docker: container.id,
