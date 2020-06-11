@@ -11,6 +11,7 @@ request({
 
     body = JSON.parse(body);
     
+    if (body.results[0].error) throw new Error(body.results[0].error);
     if (!body.results[0].series) process.exit(0);
 
     var columns = body.results[0].series[0].columns;
