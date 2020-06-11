@@ -169,7 +169,7 @@ async function main() {
 function influxdb(data) {
     if (!process.env.INFLUXDB) return;
 
-    var body = 'dockerbackup,backuphost='+require('os').hostname()+'&host='+data.host+',name='+data.name+',driver='+data.driver+',db='+data.db+' ms='+(data.ms||0)+',size='+(data.size||0)+',error='+data.error+' '+(Date.now()*1000000);
+    var body = 'dockerbackup,backuphost='+require('os').hostname()+',host='+data.host+',name='+data.name+',driver='+data.driver+',db='+data.db+' ms='+(data.ms||0)+',size='+(data.size||0)+',error='+data.error+' '+(Date.now()*1000000);
     verbose('curl -XPOST '+process.env.INFLUXDB+' --data-binary '+"'"+body+"'");
 
     request({
