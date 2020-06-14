@@ -63,7 +63,7 @@ async function main() {
                 influxdb({ host: host, driver: 'rsync', name: 'all', db: '-', ms: res.ms, size: res.size, error: 0 });
             }
             catch(e) {
-                console.error(`rsync@${host}:${container.name}:${db} FAIL`, e);
+                console.error(`rsync@${host}:all FAIL`, e);
                 influxdb({ host: host, driver: 'rsync', name: 'all', db: '-', error: 1 });
             }
             
