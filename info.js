@@ -1,4 +1,6 @@
 require('dotenv').config()
+const prettyBytes = require('pretty-bytes');
+const prettyMs = require('pretty-ms');
 const request = require('request');
 
 var sql = process.argv[2] || 'select * from dockerbackup where error = 1';
@@ -23,6 +25,8 @@ request({
         for (var i in columns) {
             obj[columns[i]] = value[i];
         }
+	obj.size = prettyBytes(obj.size||0);
+	obj.ms = prettyMs(obj.ms||0);
         objs.push(obj);
     }
     // console.log(objs);
