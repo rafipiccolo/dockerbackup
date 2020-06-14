@@ -6,6 +6,7 @@ var readdir = util.promisify(fs.readdir);
 var stat = util.promisify(fs.stat);
 const { exec } = require('child_process');
 const verbose = require('./lib/verbose');
+const rsync = require('./lib/rsync');
 
 (async function() {
 
@@ -40,7 +41,7 @@ const verbose = require('./lib/verbose');
     var containers = await getDockerInspect({ user: remoteUser, host: remoteHost });
 
     if (!remoteContainer) {
-        containerNames = containers.map(c => c.name);
+        var containerNames = containers.map(c => c.name);
         remoteContainer = await askList(containerNames, 'Destination container ?');
     }
 
