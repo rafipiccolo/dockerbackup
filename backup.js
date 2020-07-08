@@ -54,13 +54,14 @@ async function main() {
                     '.vscode-server-insiders',
                     'log/',
                     'logs/',
+                    'report.*.json',
                 ],
                 dryrun: process.env.DRYRUN || 0,
             }
             try {
                 const res = await rsync(params);
                 console.log(`rsync@${host}:all done ${res.ms}ms ${res.size}o`);
-                influxdb({ host: host, driver: 'rsync', name: 'all', db: '-', ms: res.ms, size: res.size, error: 0 });
+                influxdb({ host: host, driver: 'rsync', name: 'all', db: '-', ms: res.ms, size: res.size, sizeTransfert: res.sizeTransfert, error: 0 });
             }
             catch(e) {
                 console.error(`rsync@${host}:all FAIL`, e);
@@ -169,7 +170,7 @@ async function main() {
 function influxdb(data) {
     if (!process.env.INFLUXDB) return;
 
-    var body = 'dockerbackup,backuphost='+require('os').hostname()+',host='+data.host+',name='+data.name+',driver='+data.driver+',db='+data.db+' ms='+(data.ms||0)+',size='+(data.size||0)+',error='+data.error+' '+(Date.now()*1000000);
+    var body = 'dockerbackup,backuphost='+require('os').hostname()+',host='+data.host+',name='+data.name+',driver='+data.driver+',db='+data.db+' ms='+(data.ms||0)+',size='+(data.size||0)+',sizeTransfert='+(data.sizeTransfert||data.size||0)+',error='+data.error+' '+(Date.now()*1000000);
     verbose('curl -XPOST '+process.env.INFLUXDB+' --data-binary '+"'"+body+"'");
 
     request({
