@@ -49,6 +49,7 @@ async function main() {
                     'docker/mongo',
                     'docker/influxdb',
                     'docker/rtorrent/',
+		    'docker/filebrowser/',
                     '.npm/',
                     '.cache/',
                     '.vscode-server-insiders',
