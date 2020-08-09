@@ -13,6 +13,8 @@ const rsync = require('./lib/rsync');
 const mysqldump = require('./lib/mysqldump');
 const mongodump = require('./lib/mongodump');
 
+const influxdb = require('./lib/influxdb');
+
 const user = process.argv[2];
 const host = process.argv[3];
 const filter = process.argv[4];
@@ -49,7 +51,7 @@ async function main() {
                     'docker/mongo',
                     'docker/influxdb',
                     'docker/rtorrent/',
-		    'docker/filebrowser/',
+                    'docker/filebrowser/',
                     '.npm/',
                     '.cache/',
                     '.vscode-server-insiders',
@@ -62,11 +64,11 @@ async function main() {
             try {
                 const res = await rsync(params);
                 console.log(`rsync@${host}:all done ${res.ms}ms ${res.size}o`);
-                influxdb({ host: host, driver: 'rsync', name: 'all', db: '-', ms: res.ms, size: res.size, sizeTransfert: res.sizeTransfert, error: 0 });
+                await influxdb.insert('dockerbackup', {backuphost: process.env.HOSTNAME, host: host, driver: 'rsync', name: 'all', db: '-' }, { ms: res.ms, size: res.size, sizeTransfert: res.sizeTransfert, error: 0 });
             }
             catch(e) {
                 console.error(`rsync@${host}:all FAIL`, e);
-                influxdb({ host: host, driver: 'rsync', name: 'all', db: '-', error: 1 });
+                await influxdb.insert('dockerbackup', {backuphost: process.env.HOSTNAME, host: host, driver: 'rsync', name: 'all', db: '-' }, { error: 1 });
             }
             
         }
@@ -87,7 +89,7 @@ async function main() {
                     }
                     catch (e) {
                         console.error(`${container.driver}@${host}:${container.name} FAIL`, e);
-                        influxdb({ host: host, driver: container.driver, name: container.name, db: '-', error: 1 });
+                        await influxdb.insert('dockerbackup', {backuphost: process.env.HOSTNAME, host: host, driver: container.driver, name: container.name, db: '-' }, { error: 1 });
                     }
                     
                     // on retire les db ignorées
@@ -110,11 +112,11 @@ async function main() {
                         try {
                             const res = await mysqldump(params);
                             console.log(`${container.driver}@${host}:${container.name}:${db} done ${res.ms}ms ${res.size}o`);
-                            influxdb({host: host, driver: container.driver, name: container.name, db:db, ms: res.ms, size: res.size, error: 0});
+                            await influxdb.insert('dockerbackup', {backuphost: process.env.HOSTNAME, host: host, driver: container.driver, name: container.name, db:db }, { ms: res.ms, size: res.size, error: 0});
                         }
                         catch (e) {
                             console.error(`${container.driver}@${host}:${container.name}:${db} FAIL`, e);
-                            influxdb({ host: host, driver: container.driver, name: container.name, db: db, error: 1 });
+                            await influxdb.insert('dockerbackup', {backuphost: process.env.HOSTNAME, host: host, driver: container.driver, name: container.name, db: db }, { error: 1 });
                         }
                     }
                 }
@@ -129,7 +131,7 @@ async function main() {
                     }
                     catch (e) {
                         console.error(`${container.driver}@${host}:${container.name} FAIL`, e);
-                        influxdb({ host: host, driver: container.driver, name: container.name, db: '-', error: 1 });
+                        await influxdb.insert('dockerbackup', {backuphost: process.env.HOSTNAME, host: host, driver: container.driver, name: container.name, db: '-' }, { error: 1 });
                     }
 
                     // on retire les db ignorées
@@ -146,11 +148,11 @@ async function main() {
                         try {
                             const res = await mongodump(params);
                             console.log(`${container.driver}@${host}:${container.name}:${db} done ${res.ms}ms ${res.size}o`);
-                            influxdb({ host: host, driver: container.driver, name: container.name, db: db, ms: res.ms, size: res.size, error: 0 });
+                            await influxdb.insert('dockerbackup', {backuphost: process.env.HOSTNAME, host: host, driver: container.driver, name: container.name, db: db }, { ms: res.ms, size: res.size, error: 0 });
                         }
                         catch (e) {
                             console.error(`${container.driver}@${host}:${container.name}:${db} FAIL`, e);
-                            influxdb({ host: host, driver: container.driver, name: container.name, db: db, error: 1 });
+                            await influxdb.insert('dockerbackup', {backuphost: process.env.HOSTNAME, host: host, driver: container.driver, name: container.name, db: db }, { error: 1 });
                         }
                     }
                 }
@@ -162,27 +164,6 @@ async function main() {
     }
     catch(e) {
         console.error(e);
-        influxdb({ host: host, driver: 'getdocker', name: '-', db: '-', error: 1 });
+        await influxdb.insert('dockerbackup', {backuphost: process.env.HOSTNAME, host: host, driver: 'getdocker', name: '-', db: '-'}, { error: 1 });
     }
-}
-
-
-// INFLUXDB output
-function influxdb(data) {
-    if (!process.env.INFLUXDB) return;
-
-    var body = 'dockerbackup,backuphost='+require('os').hostname()+',host='+data.host+',name='+data.name+',driver='+data.driver+',db='+data.db+' ms='+(data.ms||0)+',size='+(data.size||0)+',sizeTransfert='+(data.sizeTransfert||data.size||0)+',error='+data.error+' '+(Date.now()*1000000);
-    verbose('curl -XPOST '+process.env.INFLUXDB+' --data-binary '+"'"+body+"'");
-
-    request({
-        method: 'POST',
-        url: process.env.INFLUXDB,
-        body: body,
-        forever: true,
-    }, function(err, response, body) {
-        if (err) return console.error('Influxdb error', err);
-        if (parseInt(response.statusCode / 100) != 2) return console.error('influxdb statuscode error', { statusCode: response.statusCode, body });
-        
-        verbose('INFLUXDB OK');
-    });
 }

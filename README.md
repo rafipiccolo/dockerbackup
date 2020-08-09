@@ -16,7 +16,7 @@ optional filter [mysqldump/mongodump]
 Automatic mode : inquire will ask questions
 
     node restore.js
-    
+
 Manual mode :
 
     node restore.js remoteUser remoteHost remoteContainer filesToRestore
