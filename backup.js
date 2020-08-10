@@ -1,7 +1,4 @@
-require('dotenv').config()
-
 const moment = require('moment');
-const request = require('request');
 const getDockerInspect = require('./lib/getDockerInspect');
 const parseContainer = require('./lib/parseContainer');
 const verbose = require('./lib/verbose');
@@ -20,7 +17,7 @@ const host = process.argv[3];
 const filter = process.argv[4];
 
 if (!user || !host) {
-    console.error('please specify a user and a hostname and optionally a driver (mysqldump/mongodump)');
+    console.error('please specify a user and a hostname and optionally a driver (mysqldump/mongodump/rsync)');
     process.exit(1);
 }
 

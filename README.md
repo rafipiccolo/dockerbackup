@@ -7,7 +7,7 @@ restore backups on any docker host
 
     node backup.js user host
 
-optional filter [mysqldump/mongodump]
+optional filter [mysqldump/mongodump/rsync]
 
     node backup.js user host mysqldump
 
