@@ -13,7 +13,7 @@ optional filter [mysqldump/mongodump/rsync]
 
 # restore usage
 
-Automatic mode : inquire will ask questions
+Automatic mode : the script will ask questions
 
     node restore.js
 
@@ -24,9 +24,7 @@ Manual mode :
 
 # install
 
-- install dockerbackup on the backup server
-
-        git clone https://github.com/rafipiccolo/dockerbackup.git dockerbackup
+On the backup server :
 
 - verify that you can connect to the production server with ssh (using private key)
 
@@ -34,7 +32,11 @@ Manual mode :
 
 - on the production server
 
-    add labels to the containers you want to backup
+    the rsync protocol will archive all the content of this directory /root/.
+
+    The mysqldump and mongodump will archive only the docker containers with the magic labels.
+
+    then you should add labels to the containers you want to backup
 
     exemple of docker-compose.yml :
 
@@ -77,6 +79,8 @@ Manual mode :
     mongodumps will be stored in /backup/{host}/{containerName}/mongodump/{now}/{db}.sql.gz
 
     mysqldumps will be stored in /backup/{host}/{containerName}/mysqldump/{now}/{db}.archive
+    
+    rsyncs will be stored in /backup/{host}/all/{now}
 
 # environment
 

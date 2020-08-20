@@ -2,8 +2,6 @@ var inquirer = require('inquirer');
 var fs = require('fs'); 
 var util = require('util'); 
 const getDockerInspect = require('./lib/getDockerInspect');
-var readdir = util.promisify(fs.readdir);
-var stat = util.promisify(fs.stat);
 const { exec } = require('child_process');
 const verbose = require('./lib/verbose');
 const rsync = require('./lib/rsync');
@@ -82,7 +80,7 @@ async function restore(options) {
     var [_, server,container,driver,time] = m;
 
     if (driver == 'rsync') {
-        if ((await stat(options.path)).isDirectory() && options.path[options.path.length - 1] != '/')
+        if ((await fs.promises.stat(options.path)).isDirectory() && options.path[options.path.length - 1] != '/')
             options.path = options.path + '/';
         var file = options.path.replace('/backup/'+server+'/'+container+'/'+driver+'/'+time+'/', '');
         const params = {
@@ -129,7 +127,7 @@ async function restore(options) {
 
 
 async function ask(path, question) {
-    var files =  await readdir(path);
+    var files =  await fs.promises.readdir(path);
     var question = [
         {
             type: 'list',
