@@ -15,14 +15,14 @@
         <div id="root"></div>
         <script type="text/babel">
             function Liste() {
-                var [backups, setbackups] = React.useState([]);
+                var [backups, setBackups] = React.useState([]);
 
                 React.useEffect(() => {
                     (async () => {
                         const response = await fetch('/data');
                         const data = await response.json();
     
-                        setbackups(data);
+                        setBackups(data);
                     })()
                 }, []);
 
