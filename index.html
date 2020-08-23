@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Docker backups</title>
+        <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment-with-locales.min.js"></script>
+        <style>body { background-color: #222; }</style>
+    </head>
+    <body>
+        <div id="root"></div>
+        <script type="text/babel">
+            function Liste() {
+                var [backups, setbackups] = React.useState([]);
+
+                React.useEffect(() => {
+                    (async () => {
+                        const response = await fetch('/data');
+                        const data = await response.json();
+    
+                        setbackups(data);
+                    })()
+                }, []);
+
+                return <>
+                    <table className="table table-dark table-hover table-sm">
+                        <tbody>
+                            <tr>
+                                <th style={{ width: 100 }}>timestamp</th>
+                                <th style={{ width: 100 }}>name</th>
+                                <th style={{ width: 100 }}>driver</th>
+                                <th style={{ width: 100 }}>ms</th>
+                                <th style={{ width: 100 }}>size</th>
+                                <th style={{ width: 100 }}>error</th>
+                            </tr>
+                            {backups.map(backup => <tr key={Math.random()+''}>
+                                <td>{moment(backup.time).format('YYYY-MM-DD HH:mm:ss.SSS')}</td>
+                                <td>{backup.host} {backup.db}</td>
+                                <td>{backup.driver}</td>
+                                <td>{backup.ms}</td>
+                                <td>{ backup.sizeTransfert ? backup.sizeTransfert + ' / ' + backup.size : backup.size }</td>
+                                <td>{
+                                    backup.error
+                                    ?
+                                    <span style={{color: 'red', 'font-size': '40px', 'line-height': '20px'}}>&bull;</span>
+                                    :
+                                    <span style={{color: 'green', 'font-size': '40px', 'line-height': '20px'}}>&bull;</span>
+                                }</td>
+                                </tr>)}
+                        </tbody>
+                    </table>
+                </>
+            }
+
+            ReactDOM.render(
+                <>
+                    <Liste />
+                </>,
+                document.getElementById('root')
+            );
+
+        </script>
+    </body>
+</html>
