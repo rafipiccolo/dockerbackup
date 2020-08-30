@@ -2,7 +2,7 @@ FROM node
 
 WORKDIR /usr/app
 
-RUN npm install -g forever
+RUN npm install -g nodemon
 
 RUN apt-get update && apt-get install -y openssh-client rsync
 
