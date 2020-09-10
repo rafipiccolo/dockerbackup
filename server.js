@@ -10,7 +10,7 @@ app.get('/', async (req, res, next) => {
 app.get('/data', async (req, res, next) => {
     try {
         var sql = '';
-        if (req.query.error)
+        if (parseInt(req.query.error))
             sql = `select * from dockerbackup where "error" = 1 and "backuphost" = '${process.env.HOSTNAME}' order by time desc limit 1000`;
         else
             sql = `select * from dockerbackup where "backuphost" = '${process.env.HOSTNAME}' order by time desc limit 1000`;

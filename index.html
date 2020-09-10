@@ -16,17 +16,20 @@
         <script type="text/babel">
             function Liste() {
                 var [backups, setBackups] = React.useState([]);
+                var [error, setError] = React.useState(0);
 
                 React.useEffect(() => {
                     (async () => {
-                        const response = await fetch('/data');
+                        const response = await fetch('/data?error='+error);
                         const data = await response.json();
     
                         setBackups(data);
                     })()
-                }, []);
+                }, [error]);
 
                 return <>
+                    <label style={{color: 'white'}}><input type="checkbox" checked={error} onClick={() => { setError(error ? 0 : 1) }}/> Voir que les erreurs</label>
+
                     <table className="table table-dark table-hover table-sm">
                         <tbody>
                             <tr>
