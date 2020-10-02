@@ -10,10 +10,14 @@ app.get('/', async (req, res, next) => {
 app.get('/data', async (req, res, next) => {
     try {
         var sql = '';
+
+        var wheres = [];
         if (parseInt(req.query.error))
-            sql = `select * from dockerbackup where "error" = 1 and "backuphost" = '${process.env.HOSTNAME}' order by time desc limit 1000`;
-        else
-            sql = `select * from dockerbackup where "backuphost" = '${process.env.HOSTNAME}' order by time desc limit 1000`;
+            wheres.push(`"error" = 1`);
+        if (req.query.driver)
+            wheres.push(`"driver" = '${req.query.driver}'`);
+        wheres.push(`"backuphost" = '${process.env.HOSTNAME}'`)
+        sql = `select * from dockerbackup where ${wheres.join(' and ')} order by time desc limit 1000`;
         var data = await influxdb.query(sql);
         res.send(data);
     } catch(err) {

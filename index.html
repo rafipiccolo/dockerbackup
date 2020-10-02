@@ -17,18 +17,20 @@
             function Liste() {
                 var [backups, setBackups] = React.useState([]);
                 var [error, setError] = React.useState(0);
+                var [driver, setDriver] = React.useState('');
 
                 React.useEffect(() => {
                     (async () => {
-                        const response = await fetch('/data?error='+error);
+                        const response = await fetch('/data?error='+error + '&driver=' + driver);
                         const data = await response.json();
     
                         setBackups(data);
                     })()
-                }, [error]);
+                }, [error, driver]);
 
                 return <>
                     <label style={{color: 'white'}}><input type="checkbox" checked={error} onClick={() => { setError(error ? 0 : 1) }}/> Voir que les erreurs</label>
+                    <label style={{color: 'white'}}><input type="checkbox" checked={driver == 'rsync'} onClick={() => { setDriver(driver == 'rsync' ? '' : 'rsync') }}/> Voir que les rsync</label>
 
                     <table className="table table-dark table-hover table-sm">
                         <tbody>
@@ -45,7 +47,11 @@
                                 <td>{backup.host} {backup.db}</td>
                                 <td>{backup.driver}</td>
                                 <td>{backup.ms}</td>
-                                <td>{ backup.sizeTransfert ? backup.sizeTransfert + ' / ' + backup.size : backup.size }</td>
+                                <td>
+                                    { backup.sizeTransfert ?
+                                        (backup.sizeTransfert + ' / ' + backup.size) + ' ' + (backup.sizeTransfert /  backup.size * 100).toFixed(1) + '%' :
+                                        backup.size }
+                                </td>
                                 <td>{
                                     backup.error
                                     ?

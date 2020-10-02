@@ -82,11 +82,11 @@ async function restore(options) {
     if (driver == 'rsync') {
         if ((await fs.promises.stat(options.path)).isDirectory() && options.path[options.path.length - 1] != '/')
             options.path = options.path + '/';
-        var file = options.path.replace('/backup/'+server+'/'+container+'/'+driver+'/'+time+'/', '');
+        var file = options.path.replace('/backup/'+server+'/'+driver+'/'+time+'/', '');
         const params = {
             host: options.remoteHost,
             user: options.remoteUser,
-            dir: options.path,
+            path: options.path,
             output: '/root/docker/'+options.remoteContainer.name+'/'+file,
             dryrun: process.env.DRYRUN || 0,
         }

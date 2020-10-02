@@ -39,9 +39,9 @@ async function main() {
             const params = {
                 host: host,
                 user: user,
-                dir: '/root/',
-                output: '/backup/' + host + '/all/' + now,
-                linkdest: await getLatestDir('/backup/' + host + '/all/'),
+                path: '/root/',
+                output: '/backup/' + host + '/all/' + now + '/',
+                linkdest: await getLatestDir('/backup/' + host + '/all/') + '/',
                 excludes: [
                     'node_modules/',
                     'docker/mysql/',
@@ -54,6 +54,7 @@ async function main() {
                     '.vscode-server-insiders',
                     'log/',
                     'logs/',
+                    'cache/',
                     'report.*.json',
                 ],
                 dryrun: process.env.DRYRUN || 0,
