@@ -36,12 +36,14 @@ async function main() {
 
         if (!filter || filter == 'rsync') {
             // backup global using rsync
+            var linkdest = await getLatestDir('/backup/' + host + '/all/')
+
             const params = {
                 host: host,
                 user: user,
                 path: '/root/',
                 output: '/backup/' + host + '/all/' + now + '/',
-                linkdest: await getLatestDir('/backup/' + host + '/all/') + '/',
+                linkdest: linkdest ? linkdest + '/': null,
                 excludes: [
                     'node_modules/',
                     'docker/mysql/',
