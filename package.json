@@ -19,6 +19,7 @@
   "dependencies": {
     "cli-table": "^0.3.1",
     "express": "^4.17.1",
+    "glob": "^7.1.6",
     "inquirer": "^7.3.3",
     "moment": "^2.29.1",
     "nano-time": "^1.0.0",
@@ -26,6 +27,7 @@
     "pretty-bytes": "^5.4.1",
     "pretty-ms": "^7.0.1",
     "request": "^2.88.2",
+    "rimraf": "^3.0.2",
     "shell-escape": "^0.2.0"
   }
 }
