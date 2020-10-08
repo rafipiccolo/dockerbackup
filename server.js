@@ -47,7 +47,8 @@ app.get('/cron/alert', async (req, res, next) => {
         }
         
         html += `\n`
-        rsyncs = rsyncs.filter(rsync => (rsync.sizeTransfert / rsync.size * 100) > 5)
+        rsyncs = rsyncs.filter(rsync => (rsync.sizeTransfert / rsync.size * 100) > 5);
+        rsyncs = rsyncs.filter(rsync => (rsync.sizeTransfert > 100000));
         if (rsyncs.length) {
             html += 'RSYNC too much :\n'
             html += rsyncs.map(rsync => `${moment(rsync.time).format('YYYY-MM-DD HH:mm:ss')} ${rsync.host} ${(rsync.sizeTransfert / rsync.size) * 100}%\n`).join('');
