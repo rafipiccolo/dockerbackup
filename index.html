@@ -29,8 +29,8 @@
                 }, [error, driver]);
 
                 return <>
-                    <label style={{color: 'white'}}><input type="checkbox" checked={error} onClick={() => { setError(error ? 0 : 1) }}/> Voir que les erreurs</label>
-                    <label style={{color: 'white'}}><input type="checkbox" checked={driver == 'rsync'} onClick={() => { setDriver(driver == 'rsync' ? '' : 'rsync') }}/> Voir que les rsync</label>
+                    <label style={{color: 'white'}}><input type="checkbox" checked={error} onChange={() => { setError(error ? 0 : 1) }}/> Voir que les erreurs</label>
+                    <label style={{color: 'white'}}><input type="checkbox" checked={driver == 'rsync'} onChange={() => { setDriver(driver == 'rsync' ? '' : 'rsync') }}/> Voir que les rsync</label>
 
                     <table className="table table-dark table-hover table-sm">
                         <tbody>
@@ -55,9 +55,9 @@
                                 <td>{
                                     backup.error
                                     ?
-                                    <span style={{color: 'red', 'font-size': '40px', 'line-height': '20px'}}>&bull;</span>
+                                    <span style={{color: 'red', fontSize: '40px', lineHeight: '20px'}}>&bull;</span>
                                     :
-                                    <span style={{color: 'green', 'font-size': '40px', 'line-height': '20px'}}>&bull;</span>
+                                    <span style={{color: 'green', fontSize: '40px', lineHeight: '20px'}}>&bull;</span>
                                 }</td>
                                 </tr>)}
                         </tbody>
