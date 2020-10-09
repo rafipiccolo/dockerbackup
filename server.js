@@ -10,6 +10,14 @@ app.get('/', async (req, res, next) => {
     res.sendFile(__dirname+'/index.html')
 });
 
+app.get('/stat', async (req, res, next) => {
+    try {
+        res.sendFile('/backup/stat.txt');
+    } catch(err) {
+        next(err);
+    }
+})
+
 app.get('/data', async (req, res, next) => {
     try {
         var sql = '';
