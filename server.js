@@ -6,6 +6,11 @@ const influxdb = require('./lib/influxdb');
 const checkDf = require('./lib/checkDf');
 const sendMail = require('./lib/sendMail');
 
+app.use((req, res, next) => {
+    console.log(req.method + ' ' + req.originalUrl);
+    next();
+});
+
 app.get('/', async (req, res, next) => {
     res.sendFile(__dirname+'/index.html')
 });
