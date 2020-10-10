@@ -1,22 +1,22 @@
 #!/bin/bash
 
-main() {
-    date
+main () {
+    date;
 
-    echo disk usage
-    df -h /
+    echo disk usage;
+    df -h /;
 
-    for DIR in /backup/* ; do
-        echo $DIR
+    for DIR in /backup/*/ ; do
+        echo $DIR;
         du -chs $DIR/all/*;
-        echo
+        echo;
     done
 
-    echo 'mysql'
-    du -chs /backup/*/mysql
+    echo 'mysql';
+    du -chs /backup/*/mysql;
 
-    echo
-    date
+    echo;
+    date;
 }
 
-main > /backup/stat.txt
+main > /backup/stat2.txt;
