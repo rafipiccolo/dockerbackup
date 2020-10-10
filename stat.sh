@@ -3,6 +3,9 @@
 main() {
     date
 
+    echo disk usage
+    df -h /
+
     for DIR in /backup/* ; do
         echo $DIR
         du -chs $DIR/all/*;
