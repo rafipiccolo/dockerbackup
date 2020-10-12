@@ -56,7 +56,10 @@ app.get('/cron/alert', async (req, res, next) => {
         html += `\n`
         if (errors.length) {
             html += 'Errors :\n'
-            html += errors.map(error => `${moment(error.time).format('YYYY-MM-DD HH:mm:ss')} ${error.driver} ${error.host}\n`).join('');
+            html += errors.map(error => {
+                var url = `https://monitoring.raphaelpiccolo.com/logsMysql?containerName=/dockerbackup&hostname=${process.env.HOSTNAME}&start=${moment(error.time).add(-1, 'm').toDate().getTime()}000000&end=${moment(error.time).add(+1, 'm').toDate().getTime()}000000`;
+                return `<a href="${url}">${moment(error.time).format('YYYY-MM-DD HH:mm:ss')}</a> ${error.driver} ${error.host}\n`;
+            }).join('');
         }
         
         html += `\n`
