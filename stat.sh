@@ -19,4 +19,4 @@ main () {
     date;
 }
 
-main > /backup/stat2.txt;
+main > /backup/stat.txt;
