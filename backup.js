@@ -12,27 +12,38 @@ const mongodump = require('./lib/mongodump');
 
 const influxdb = require('./lib/influxdb');
 
-const user = process.argv[2];
-const host = process.argv[3];
-const filter = process.argv[4];
+var userhosts = process.argv[2];
+const filter = process.argv[3];
 
-if (!user || !host) {
-    console.error('please specify a user and a hostname and optionally a driver (mysqldump/mongodump/rsync)');
+if (process.argv.length > 4 || !userhosts) {
+    console.error('please specify a user@hostname (separated by ",") and optionally a driver (mysqldump/mongodump/rsync)');
     process.exit(1);
 }
 
-main();
+const now = moment().format('YYYY-MM-DD--HH');
 
-async function main() {
+(async function() {
+    userhosts = userhosts.split(',');
+    for (var userhost of userhosts) {
+        var m = userhost.match(/([a-z0-9\.\-]+)@([a-z0-9\.\-]+)/i)
+        if (!m) {
+            console.error('please specify a user@hostname (separated by ",")');
+            process.exit(1);
+        }
+        const [_, user, host] = m;
+        await main(user, host, filter, now);
+    }
+})()
+
+
+
+async function main(user, host, filter, now) {
     try {
         // get and parse labels from remote docker
         var containers = await getDockerInspect({user, host});
         containers = containers.map(parseContainer).filter(container => container);
         
         verbose(`found ${containers.length} backup jobs`);
-        
-        // for each container remaining we execute backup
-        const now = moment().format('YYYY-MM-DD--HH');
 
         if (!filter || filter == 'rsync') {
             // backup global using rsync
@@ -46,9 +57,9 @@ async function main() {
                 linkdest: linkdest ? linkdest + '/': null,
                 excludes: [
                     'node_modules/',
-                    'docker/mysql/',
+                    'docker/mysql/data',
                     'docker/mongo',
-                    'docker/influxdb',
+                    'docker/influxdb/data',
                     'docker/rtorrent/',
                     'docker/filebrowser/',
                     '.npm/',
@@ -57,6 +68,7 @@ async function main() {
                     'log/',
                     'logs/',
                     'cache/',
+                    'uploads/tmp/',
                     'report.*.json',
                 ],
                 dryrun: process.env.DRYRUN || 0,
