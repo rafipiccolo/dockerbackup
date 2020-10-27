@@ -4,15 +4,44 @@ const crypto = require('crypto');
 var getLatestDir = require('./lib/getLatestDir');
 var memoizee = require('memoizee');
 
-var memoizedMd5OnFilename = memoizee(function(oldfile) {
-    return crypto.createHash('md5').update(fs.readFileSync(oldfile)).digest("hex")
-}, {
-    async: true,
-    normalizer: function (args) {
-        // args is arguments object as accessible in memoized function
-        return JSON.stringify(args[0]);
-    }
-});
+var memoizedMd5OnFilename = memoizee(function(file, callback) {
+    // return crypto.createHash('md5').update(fs.readFileSync(oldfile)).digest("hex")
+
+    var s = fs.createReadStream(file);
+    var hash = crypto.createHash('md5');
+    s.on('data', function (data) {
+        hash.update(data);
+    })
+    s.on('end', function (data) {
+        callback(null, hash.digest("hex"));
+    });
+    s.on('error', function (err) {
+        callback(err);
+    });
+}, {async: true});
+
+var promisifiedMemoizedMd5OnFilename = require('util').promisify(memoizedMd5OnFilename);
+
+
+/*
+node merge.js /backup/ideaz.world/all
+du -chs /backup/ideaz.world/all/*
+
+node merge.js /backup/backup.clinalliance.fr/all
+du -chs /backup/backup.clinalliance.fr/all/*
+
+node merge.js /backup/2i.raphaelpiccolo.com/all
+du -chs /backup/2i.raphaelpiccolo.com/all/*
+
+node merge.js /backup/flatbay.fr/all
+du -chs /backup/flatbay.fr/all/*
+
+node merge.js /backup/raphaelpiccolo.com/all
+du -chs /backup/raphaelpiccolo.com/all/*
+
+node merge.js /backup/gextra.net/all
+du -chs /backup/gextra.net/all/*
+*/
 
 (async function() {
     
@@ -64,8 +93,8 @@ var memoizedMd5OnFilename = memoizee(function(oldfile) {
                 continue;
             }
 
-            let oldhash = memoizedMd5OnFilename(oldfile);
-            let filehash = memoizedMd5OnFilename(file);
+            let oldhash = await promisifiedMemoizedMd5OnFilename(oldfile);
+            let filehash = await promisifiedMemoizedMd5OnFilename(file);
 
             if (oldhash != filehash) {
                 // console.log(oldfile, file, 'md5 differ');
