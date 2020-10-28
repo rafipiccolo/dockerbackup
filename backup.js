@@ -60,6 +60,7 @@ async function main(user, host, filter, now) {
                     'docker/mysql/data',
                     'docker/mongo',
                     'docker/influxdb/data',
+                    'docker/loki/data',
                     'docker/rtorrent/',
                     'docker/filebrowser/',
                     '.npm/',
