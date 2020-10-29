@@ -13,10 +13,11 @@ const mongodump = require('./lib/mongodump');
 const influxdb = require('./lib/influxdb');
 
 var userhosts = process.argv[2];
-const filter = process.argv[3];
+var drivers = process.argv[3];
+if (!drivers) drivers = 'rsync,rsynclive,mysql,mongo';
 
 if (process.argv.length > 4 || !userhosts) {
-    console.error('please specify a user@hostname (separated by ",") and optionally a driver (mysqldump/mongodump/rsync)');
+    console.error('please specify some user@hostname (separated by ",") and optionally some drivers (mysqldump/mongodump/rsync separated by ",")');
     process.exit(1);
 }
 
@@ -24,20 +25,23 @@ const now = moment().format('YYYY-MM-DD--HH');
 
 (async function() {
     userhosts = userhosts.split(',');
+    drivers = drivers.split(',');
     for (var userhost of userhosts) {
-        var m = userhost.match(/([a-z0-9\.\-]+)@([a-z0-9\.\-]+)/i)
-        if (!m) {
-            console.error('please specify a user@hostname (separated by ",")');
-            process.exit(1);
+        for (var driver of drivers) {
+            var m = userhost.match(/([a-z0-9\.\-]+)@([a-z0-9\.\-]+)/i)
+            if (!m) {
+                console.error('please specify a user@hostname (separated by ",")');
+                process.exit(1);
+            }
+            const [_, user, host] = m;
+                await main(user, host, driver, now);
         }
-        const [_, user, host] = m;
-        await main(user, host, filter, now);
     }
 })()
 
 
 
-async function main(user, host, filter, now) {
+async function main(user, host, driver, now) {
     try {
         // get and parse labels from remote docker
         var containers = await getDockerInspect({user, host});
@@ -45,8 +49,45 @@ async function main(user, host, filter, now) {
         
         verbose(`found ${containers.length} backup jobs`);
 
-        if (!filter || filter == 'rsync') {
-            // backup global using rsync
+        // rsync in append only
+        if (driver == 'rsynclive') {
+            const params = {
+                host: host,
+                user: user,
+                path: '/root/',
+                output: '/backup/' + host + '/rsynclive/',
+                excludes: [
+                    'node_modules/',
+                    'docker/mysql/data',
+                    'docker/mongo',
+                    'docker/influxdb/data',
+                    'docker/loki/data',
+                    'docker/rtorrent/',
+                    'docker/filebrowser/',
+                    '.npm/',
+                    '.cache/',
+                    '.vscode-server-insiders',
+                    'log/',
+                    'logs/',
+                    'cache/',
+                    'uploads/tmp/',
+                    'report.*.json',
+                ],
+                dryrun: process.env.DRYRUN || 0,
+            }
+            try {
+                const res = await rsync(params);
+                console.log(`${driver}@${host} done ${res.ms}ms ${res.size}o`);
+                await influxdb.insert('dockerbackup', { backuphost: process.env.HOSTNAME, host: host, driver: driver, name: 'all', db: '-' }, { ms: res.ms, size: res.size, sizeTransfert: res.sizeTransfert, error: 0 });
+            }
+            catch (e) {
+                console.error(`${driver}@${host} FAIL`, e);
+                await influxdb.insert('dockerbackup', { backuphost: process.env.HOSTNAME, host: host, driver: driver, name: 'all', db: '-' }, { error: 1 });
+            }
+        }
+
+        // incremental backup using rsync
+        if (driver == 'rsync') {
             var linkdest = await getLatestDir('/backup/' + host + '/all/')
 
             const params = {
@@ -76,19 +117,18 @@ async function main(user, host, filter, now) {
             }
             try {
                 const res = await rsync(params);
-                console.log(`rsync@${host}:all done ${res.ms}ms ${res.size}o`);
-                await influxdb.insert('dockerbackup', {backuphost: process.env.HOSTNAME, host: host, driver: 'rsync', name: 'all', db: '-' }, { ms: res.ms, size: res.size, sizeTransfert: res.sizeTransfert, error: 0 });
+                console.log(`${driver}@${host}:all done ${res.ms}ms ${res.size}o`);
+                await influxdb.insert('dockerbackup', {backuphost: process.env.HOSTNAME, host: host, driver: driver, name: 'all', db: '-' }, { ms: res.ms, size: res.size, sizeTransfert: res.sizeTransfert, error: 0 });
             }
             catch(e) {
-                console.error(`rsync@${host}:all FAIL`, e);
-                await influxdb.insert('dockerbackup', {backuphost: process.env.HOSTNAME, host: host, driver: 'rsync', name: 'all', db: '-' }, { error: 1 });
+                console.error(`${driver}@${host}:all FAIL`, e);
+                await influxdb.insert('dockerbackup', {backuphost: process.env.HOSTNAME, host: host, driver: driver, name: 'all', db: '-' }, { error: 1 });
             }
-            
         }
         
         // backup by container
         for (const container of containers) {
-            if (!filter || filter == container.driver) {
+            if (driver == container.driver) {
                 if (container.driver == 'mysqldump') {
                     var dbs = [];
                     try {
