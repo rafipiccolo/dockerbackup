@@ -37,6 +37,8 @@ const now = moment().format('YYYY-MM-DD--HH');
                 await main(user, host, driver, now);
         }
     }
+
+    console.log(`all done`);
 })()
 
 
@@ -76,6 +78,7 @@ async function main(user, host, driver, now) {
                 dryrun: process.env.DRYRUN || 0,
             }
             try {
+                console.log(`${driver}@${host} start`);
                 const res = await rsync(params);
                 console.log(`${driver}@${host} done ${res.ms}ms ${res.size}o`);
                 await influxdb.insert('dockerbackup', { backuphost: process.env.HOSTNAME, host: host, driver: driver, name: 'all', db: '-' }, { ms: res.ms, size: res.size, sizeTransfert: res.sizeTransfert, error: 0 });
@@ -116,6 +119,7 @@ async function main(user, host, driver, now) {
                 dryrun: process.env.DRYRUN || 0,
             }
             try {
+                console.log(`${driver}@${host} start`);
                 const res = await rsync(params);
                 console.log(`${driver}@${host}:all done ${res.ms}ms ${res.size}o`);
                 await influxdb.insert('dockerbackup', {backuphost: process.env.HOSTNAME, host: host, driver: driver, name: 'all', db: '-' }, { ms: res.ms, size: res.size, sizeTransfert: res.sizeTransfert, error: 0 });
@@ -163,6 +167,7 @@ async function main(user, host, driver, now) {
                             ignoreTables: ignoreTables,
                         };
                         try {
+                            console.log(`${driver}@${host} start`);
                             const res = await mysqldump(params);
                             console.log(`${container.driver}@${host}:${container.name}:${db} done ${res.ms}ms ${res.size}o`);
                             await influxdb.insert('dockerbackup', {backuphost: process.env.HOSTNAME, host: host, driver: container.driver, name: container.name, db:db }, { ms: res.ms, size: res.size, error: 0});
