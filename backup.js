@@ -1,4 +1,6 @@
 const moment = require('moment');
+const fs = require('fs');
+const path = require('path');
 const getDockerInspect = require('./lib/getDockerInspect');
 const parseContainer = require('./lib/parseContainer');
 const verbose = require('./lib/verbose');
@@ -14,7 +16,7 @@ const influxdb = require('./lib/influxdb');
 
 var userhosts = process.argv[2];
 var drivers = process.argv[3];
-if (!drivers) drivers = 'rsync,rsynclive,mysql,mongo';
+if (!drivers) drivers = 'rsync,rsynclive,mysqldump,mongodump';
 
 if (process.argv.length > 4 || !userhosts) {
     console.error('please specify some user@hostname (separated by ",") and optionally some drivers (mysqldump/mongodump/rsync separated by ",")');
@@ -92,12 +94,13 @@ async function main(user, host, driver, now) {
         // incremental backup using rsync
         if (driver == 'rsync') {
             var linkdest = await getLatestDir('/backup/' + host + '/all/')
-
+            var realoutput = '/backup/' + host + '/all/' + now + '/';
+            var tmpoutput = '/backup/.tmp/'+host+'.all.'+now+'/';
             const params = {
                 host: host,
                 user: user,
                 path: '/root/',
-                output: '/backup/' + host + '/all/' + now + '/',
+                output: tmpoutput,
                 linkdest: linkdest ? linkdest + '/': null,
                 excludes: [
                     'node_modules/',
@@ -120,7 +123,10 @@ async function main(user, host, driver, now) {
             }
             try {
                 console.log(`${driver}@${host} start`);
+                await fs.promises.mkdir(path.dirname(realoutput), {recursive: true});
+                await fs.promises.mkdir(path.dirname(tmpoutput), {recursive: true});
                 const res = await rsync(params);
+                await fs.promises.rename(tmpoutput, realoutput);
                 console.log(`${driver}@${host}:all done ${res.ms}ms ${res.size}o`);
                 await influxdb.insert('dockerbackup', {backuphost: process.env.HOSTNAME, host: host, driver: driver, name: 'all', db: '-' }, { ms: res.ms, size: res.size, sizeTransfert: res.sizeTransfert, error: 0 });
             }
@@ -155,6 +161,9 @@ async function main(user, host, driver, now) {
                     dbs = dbs.filter((db) => !container.ignore.includes(db));
                     
                     for (var db of dbs) {
+                        var realoutput = '/backup/'+host+'/'+container.name+'/mysqldump/'+now+'/'+db+'.sql.gz';
+                        var tmpoutput = '/backup/.tmp/'+host+'.'+container.name+'.mysqldump.'+now+'.'+db+'.sql.gz';
+
                         const params = {
                             host: host,
                             user: user,
@@ -163,12 +172,15 @@ async function main(user, host, driver, now) {
                             mysqlPassword: container.env.MYSQL_ROOT_PASSWORD||'root',
                             dryrun: process.env.DRYRUN || 0,
                             db: db,
-                            output: '/backup/'+host+'/'+container.name+'/mysqldump/'+now+'/'+db+'.sql.gz',
+                            output: tmpoutput,
                             ignoreTables: ignoreTables,
                         };
                         try {
                             console.log(`${driver}@${host} start`);
+                            await fs.promises.mkdir(path.dirname(realoutput), {recursive: true});
+                            await fs.promises.mkdir(path.dirname(tmpoutput), {recursive: true});            
                             const res = await mysqldump(params);
+                            await fs.promises.rename(tmpoutput, realoutput);
                             console.log(`${container.driver}@${host}:${container.name}:${db} done ${res.ms}ms ${res.size}o`);
                             await influxdb.insert('dockerbackup', {backuphost: process.env.HOSTNAME, host: host, driver: container.driver, name: container.name, db:db }, { ms: res.ms, size: res.size, error: 0});
                         }
@@ -195,16 +207,22 @@ async function main(user, host, driver, now) {
                     // on retire les db ignorées
                     container.ignore = container.ignore || [];
                     for (var db of dbs) {
+                        var realoutput = '/backup/'+host+'/'+container.name+'/mysqldump/'+now+'/'+db+'.archive';
+                        var tmpoutput = '/backup/.tmp/'+host+'.'+container.name+'.mysqldump.'+now+'.'+db+'.archive';
+
                         const params = {
                             host: host,
                             user: user,
                             docker: container.id,
                             dryrun: process.env.DRYRUN || 0,
                             db: db,
-                            output: '/backup/'+host+'/'+container.name+'/mongodump/'+now+'/'+db+'.archive',
+                            output: tmpoutput,
                         }
                         try {
+                            await fs.promises.mkdir(path.dirname(realoutput), {recursive: true});
+                            await fs.promises.mkdir(path.dirname(tmpoutput), {recursive: true});            
                             const res = await mongodump(params);
+                            await fs.promises.rename(tmpoutput, realoutput);
                             console.log(`${container.driver}@${host}:${container.name}:${db} done ${res.ms}ms ${res.size}o`);
                             await influxdb.insert('dockerbackup', {backuphost: process.env.HOSTNAME, host: host, driver: container.driver, name: container.name, db: db }, { ms: res.ms, size: res.size, error: 0 });
                         }

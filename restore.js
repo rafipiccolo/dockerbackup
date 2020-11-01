@@ -50,16 +50,21 @@ const rsync = require('./lib/rsync');
     if (paths.length == 0) {
         var path = '/backup';
 
-        var server = await ask(path, 'Server ?');
+        var files =  await fs.promises.readdir(path);
+        files.filter(file => file != '/backup/.tmp')
+        var server = await ask(files, 'Server ?');
         path += '/'+server;
-
-        var container = await ask(path, 'Container ?');
+        
+        var files =  await fs.promises.readdir(path);
+        var container = await ask(files, 'Container ?');
         path += '/'+container;
-
-        var driver = await ask(path, 'Driver ?');
+        
+        var files =  await fs.promises.readdir(path);
+        var driver = await ask(files, 'Driver ?');
         path += '/'+driver;
-
-        var time = await ask(path, 'time ?');
+        
+        var files =  await fs.promises.readdir(path);
+        var time = await ask(files, 'time ?');
         path += '/'+time;
 
         paths.push(path)
@@ -97,7 +102,8 @@ async function restore(options) {
         var m = options.path.match(/([0-9a-zA-z_\-\.]+)\.sql\.gz$/);
         var database = '';
         if (!m){
-            database = await ask(options.path, 'Database ?');
+            let files =  await fs.promises.readdir(options.path);
+            database = await ask(files, 'Database ?');
             options.path += '/'+database;
             database = database.replace('.sql.gz', '');
         }
@@ -111,7 +117,8 @@ async function restore(options) {
         var m = options.path.match(/([0-9a-zA-z_\-\.]+)\.archive$/);
         var database = '';
         if (!m){
-            database = await ask(options.path, 'Database ?');
+            let files =  await fs.promises.readdir(options.path);
+            database = await ask(files, 'Database ?');
             options.path += '/'+database;
             database = database.replace('.archive', '');
         }
@@ -126,8 +133,7 @@ async function restore(options) {
 }
 
 
-async function ask(path, question) {
-    var files =  await fs.promises.readdir(path);
+async function ask(files, question) {
     var question = [
         {
             type: 'list',
