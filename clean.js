@@ -15,15 +15,16 @@ function execFilePromise(cmd, params) {
 }
 
 (async () => {
+    // vide les vieux backups
     var dirs1 = await glob('/backup/*/all/*');
     var dirs2 = await glob('/backup/*/mysql/mysqldump/*');
     var dirs = [...dirs1, ...dirs2];
-
-    for (var dir of dirs) {
+    
+    for (let dir of dirs) {
         var basename = path.basename(dir);
         var m = basename.match(/^(\d+-\d+-\d+)--(\d+)/);
         if (!m) continue;
-
+        
         var date = new Date(m[1]+' '+m[2]+':00');
         if (date < moment().add(-30, 'd')) {
             console.log('deleting -30D', dir);
@@ -33,5 +34,13 @@ function execFilePromise(cmd, params) {
             console.log('deleting -26H', dir);
             await execFilePromise('rm', ['-rf', dir]);
         }
+    }
+
+    // vide .tmp car si on lance clean c'est qu'on a fini de backuper
+    var dirs3 = await glob('/backup/.tmp/*');
+    for (let dir of dirs3) {
+        console.log('deleting old failed backup', dir);
+
+        await execFilePromise('rm', ['-rf', dir]);
     }
 })()
