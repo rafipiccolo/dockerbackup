@@ -6,10 +6,14 @@
         <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
         <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
         <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" />
         <script src="/socket.io/socket.io.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment-with-locales.min.js"></script>
-        <style>body { background-color: #222; }</style>
+        <style>
+            body {
+                background-color: #222;
+            }
+        </style>
     </head>
     <body>
         <div id="root"></div>
@@ -21,48 +25,77 @@
 
                 React.useEffect(() => {
                     (async () => {
-                        const response = await fetch('/data?error='+error + '&driver=' + driver);
+                        const response = await fetch('/data?error=' + error + '&driver=' + driver);
                         const data = await response.json();
-    
+
                         setBackups(data);
-                    })()
+                    })();
                 }, [error, driver]);
 
-                return <>
-                    <label style={{color: 'white'}}><input type="checkbox" checked={error} onChange={() => { setError(error ? 0 : 1) }}/> Voir que les erreurs</label>
-                    <label style={{color: 'white'}}><input type="checkbox" checked={driver == 'rsync'} onChange={() => { setDriver(driver == 'rsync' ? '' : 'rsync') }}/> Voir que les rsync</label>
+                return (
+                    <>
+                        <label style={{ color: 'white' }}>
+                            <input
+                                type="checkbox"
+                                checked={error}
+                                onChange={() => {
+                                    setError(error ? 0 : 1);
+                                }}
+                            />{' '}
+                            Voir que les erreurs
+                        </label>
+                        <label style={{ color: 'white' }}>
+                            <input
+                                type="checkbox"
+                                checked={driver == 'rsync'}
+                                onChange={() => {
+                                    setDriver(driver == 'rsync' ? '' : 'rsync');
+                                }}
+                            />{' '}
+                            Voir que les rsync
+                        </label>
 
-                    <table className="table table-dark table-hover table-sm">
-                        <tbody>
-                            <tr>
-                                <th style={{ width: 100 }}>timestamp</th>
-                                <th style={{ width: 100 }}>name</th>
-                                <th style={{ width: 100 }}>driver</th>
-                                <th style={{ width: 100 }}>ms</th>
-                                <th style={{ width: 100 }}>size</th>
-                                <th style={{ width: 100 }}>error</th>
-                            </tr>
-                            {backups.map(backup => <tr key={Math.random()+''}>
-                                <td>{moment(backup.time).format('YYYY-MM-DD HH:mm:ss.SSS')}</td>
-                                <td>{backup.host} {backup.db}</td>
-                                <td>{backup.driver}</td>
-                                <td>{backup.ms}</td>
-                                <td>
-                                    { backup.sizeTransfert ?
-                                        (backup.sizeTransfert + ' / ' + backup.size) + ' ' + (backup.sizeTransfert /  backup.size * 100).toFixed(1) + '%' :
-                                        backup.size }
-                                </td>
-                                <td>{
-                                    backup.error
-                                    ?
-                                    <span style={{color: 'red', fontSize: '40px', lineHeight: '20px'}}>&bull;</span>
-                                    :
-                                    <span style={{color: 'green', fontSize: '40px', lineHeight: '20px'}}>&bull;</span>
-                                }</td>
-                                </tr>)}
-                        </tbody>
-                    </table>
-                </>
+                        <table className="table table-dark table-hover table-sm">
+                            <tbody>
+                                <tr>
+                                    <th style={{ width: 100 }}>timestamp</th>
+                                    <th style={{ width: 100 }}>name</th>
+                                    <th style={{ width: 100 }}>driver</th>
+                                    <th style={{ width: 100 }}>ms</th>
+                                    <th style={{ width: 100 }}>size</th>
+                                    <th style={{ width: 100 }}>error</th>
+                                </tr>
+                                {backups.map((backup) => (
+                                    <tr key={Math.random() + ''}>
+                                        <td>{moment(backup.time).format('YYYY-MM-DD HH:mm:ss.SSS')}</td>
+                                        <td>
+                                            {backup.host} {backup.db}
+                                        </td>
+                                        <td>{backup.driver}</td>
+                                        <td>{backup.ms}</td>
+                                        <td>
+                                            {backup.sizeTransfert
+                                                ? backup.sizeTransfert +
+                                                  ' / ' +
+                                                  backup.size +
+                                                  ' ' +
+                                                  ((backup.sizeTransfert / backup.size) * 100).toFixed(1) +
+                                                  '%'
+                                                : backup.size}
+                                        </td>
+                                        <td>
+                                            {backup.error ? (
+                                                <span style={{ color: 'red', fontSize: '40px', lineHeight: '20px' }}>&bull;</span>
+                                            ) : (
+                                                <span style={{ color: 'green', fontSize: '40px', lineHeight: '20px' }}>&bull;</span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </>
+                );
             }
 
             ReactDOM.render(
@@ -71,7 +104,6 @@
                 </>,
                 document.getElementById('root')
             );
-
         </script>
     </body>
 </html>

@@ -11,7 +11,7 @@ function execFilePromise(cmd, params) {
 
             resolve(stdout);
         });
-    })
+    });
 }
 
 (async () => {
@@ -19,18 +19,18 @@ function execFilePromise(cmd, params) {
     var dirs1 = await glob('/backup/*/all/*');
     var dirs2 = await glob('/backup/*/mysql/mysqldump/*');
     var dirs = [...dirs1, ...dirs2];
-    
+
     for (let dir of dirs) {
         var basename = path.basename(dir);
         var m = basename.match(/^(\d+-\d+-\d+)--(\d+)/);
         if (!m) continue;
-        
-        var date = new Date(m[1]+' '+m[2]+':00');
+
+        var date = new Date(m[1] + ' ' + m[2] + ':00');
         if (date < moment().add(-30, 'd')) {
             console.log('deleting -30D', dir);
             await execFilePromise('rm', ['-rf', dir]);
         }
-        if (m[2] != "01" && date < moment().add(-26, 'h')) {
+        if (m[2] != '01' && date < moment().add(-26, 'h')) {
             console.log('deleting -26H', dir);
             await execFilePromise('rm', ['-rf', dir]);
         }
@@ -43,4 +43,4 @@ function execFilePromise(cmd, params) {
 
         await execFilePromise('rm', ['-rf', dir]);
     }
-})()
+})();

@@ -24,10 +24,13 @@
         "memoizee": "^0.4.14",
         "moment": "^2.29.1",
         "nano-time": "^1.0.0",
-        "nodemailer": "^6.4.16",
+        "nodemailer": "^6.4.17",
         "pretty-bytes": "^5.4.1",
         "pretty-ms": "^7.0.1",
         "request": "^2.88.2",
         "shell-escape": "^0.2.0"
+    },
+    "devDependencies": {
+        "prettier": "^2.2.1"
     }
 }
