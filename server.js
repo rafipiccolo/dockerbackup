@@ -1,6 +1,8 @@
 const express = require('express');
 const moment = require('moment');
-const app = express();
+var app = express();
+var http = require('http');
+var server = http.Server(app);
 const port = process.env.PORT || 3000;
 const influxdb = require('./lib/influxdb');
 const checkDf = require('./lib/checkDf');
@@ -43,6 +45,6 @@ app.get('/health', (req, res) => {
     res.send('ok');
 });
 
-app.listen(port, () => {
-    console.log(`listening at http://localhost:${port}`);
+server.listen(port, function () {
+    console.log('ready to go on ' + port);
 });
