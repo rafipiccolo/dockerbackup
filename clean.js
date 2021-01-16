@@ -22,15 +22,30 @@ function execFilePromise(cmd, params) {
 
     for (let dir of dirs) {
         var basename = path.basename(dir);
-        var m = basename.match(/^(\d+-\d+-\d+)--(\d+)/);
+        var m = basename.match(/^(\d+)-(\d+)-(\d+)--(\d+)/);
         if (!m) continue;
 
-        var date = new Date(m[1] + ' ' + m[2] + ':00');
-        if (date < moment().add(-30, 'd')) {
-            console.log('deleting -30D', dir);
-            await execFilePromise('rm', ['-rf', dir]);
+        var date = new Date(m[1] + '-' + m[2] + '-' + m[3] + ' ' + m[4] + ':00');
+
+        // if sql
+        if (dirs2.includes(dir)) {
+            if (date < moment().add(-1, 'year')) {
+                console.log('deleting -1Y', dir);
+                await execFilePromise('rm', ['-rf', dir]);
+            } else if (m[3] != '01' && date < moment().add(-30, 'd')) {
+                console.log('deleting -30D', dir);
+                await execFilePromise('rm', ['-rf', dir]);
+            }
         }
-        if (m[2] != '01' && date < moment().add(-26, 'h')) {
+        // if rsync
+        else {
+            if (date < moment().add(-30, 'd')) {
+                console.log('deleting -30D', dir);
+                await execFilePromise('rm', ['-rf', dir]);
+            }
+        }
+
+        if (m[4] != '01' && date < moment().add(-26, 'h')) {
             console.log('deleting -26H', dir);
             await execFilePromise('rm', ['-rf', dir]);
         }
