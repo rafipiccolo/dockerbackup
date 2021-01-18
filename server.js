@@ -6,7 +6,6 @@ var server = http.Server(app);
 const port = process.env.PORT || 3000;
 const influxdb = require('./lib/influxdb');
 const checkDf = require('./lib/checkDf');
-const sendMail = require('./lib/sendMail');
 
 app.use((req, res, next) => {
     console.log(req.method + ' ' + req.originalUrl);
