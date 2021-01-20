@@ -8,12 +8,12 @@ const influxdb = require('./lib/influxdb');
 const checkDf = require('./lib/checkDf');
 
 app.use((req, res, next) => {
-    console.log(`${req.method  } ${  req.originalUrl}`);
+    console.log(`${req.method} ${req.originalUrl}`);
     next();
 });
 
 app.get('/', async (req, res, next) => {
-    res.sendFile(`${__dirname  }/index.html`);
+    res.sendFile(`${__dirname}/index.html`);
 });
 
 app.get('/stat', async (req, res, next) => {
@@ -45,5 +45,5 @@ app.get('/health', (req, res) => {
 });
 
 server.listen(port, function () {
-    console.log(`ready to go on ${  port}`);
+    console.log(`ready to go on ${port}`);
 });
