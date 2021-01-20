@@ -25,7 +25,7 @@ function execFilePromise(cmd, params) {
         var m = basename.match(/^(\d+)-(\d+)-(\d+)--(\d+)/);
         if (!m) continue;
 
-        var date = new Date(m[1] + '-' + m[2] + '-' + m[3] + ' ' + m[4] + ':00');
+        var date = new Date(`${m[1]  }-${  m[2]  }-${  m[3]  } ${  m[4]  }:00`);
 
         // if sql
         if (dirs2.includes(dir)) {

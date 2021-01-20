@@ -52,19 +52,19 @@ const rsync = require('./lib/rsync');
         var files = await fs.promises.readdir(path);
         files.filter((file) => file != '/backup/.tmp');
         var server = await ask(files, 'Server ?');
-        path += '/' + server;
+        path += `/${  server}`;
 
         var files = await fs.promises.readdir(path);
         var container = await ask(files, 'Container ?');
-        path += '/' + container;
+        path += `/${  container}`;
 
         var files = await fs.promises.readdir(path);
         var driver = await ask(files, 'Driver ?');
-        path += '/' + driver;
+        path += `/${  driver}`;
 
         var files = await fs.promises.readdir(path);
         var time = await ask(files, 'time ?');
-        path += '/' + time;
+        path += `/${  time}`;
 
         paths.push(path);
     }
@@ -82,13 +82,13 @@ async function restore(options) {
     var [_, server, container, driver, time] = m;
 
     if (driver == 'rsync') {
-        if ((await fs.promises.stat(options.path)).isDirectory() && options.path[options.path.length - 1] != '/') options.path = options.path + '/';
-        var file = options.path.replace('/backup/' + server + '/' + driver + '/' + time + '/', '');
+        if ((await fs.promises.stat(options.path)).isDirectory() && options.path[options.path.length - 1] != '/') options.path = `${options.path  }/`;
+        var file = options.path.replace(`/backup/${  server  }/${  driver  }/${  time  }/`, '');
         const params = {
             host: options.remoteHost,
             user: options.remoteUser,
             path: options.path,
-            output: '/root/docker/' + options.remoteContainer.name + '/' + file,
+            output: `/root/docker/${  options.remoteContainer.name  }/${  file}`,
             dryrun: process.env.DRYRUN || 0,
         };
         const res = await rsync(params);
@@ -99,33 +99,33 @@ async function restore(options) {
         if (!m) {
             let files = await fs.promises.readdir(options.path);
             database = await ask(files, 'Database ?');
-            options.path += '/' + database;
+            options.path += `/${  database}`;
             database = database.replace('.sql.gz', '');
         } else database = m[1];
 
         await execCommand(
-            "echo 'create database if not exists " +
-                database +
-                "' | ssh " +
-                options.remoteHost +
-                " 'docker exec -i " +
-                options.remoteContainer.name +
-                ' mysql -u root -p' +
-                options.remoteContainer.env.MYSQL_ROOT_PASSWORD +
-                "'"
+            `echo 'create database if not exists ${ 
+                database 
+                }' | ssh ${ 
+                options.remoteHost 
+                } 'docker exec -i ${ 
+                options.remoteContainer.name 
+                } mysql -u root -p${ 
+                options.remoteContainer.env.MYSQL_ROOT_PASSWORD 
+                }'`
         );
         await execCommand(
-            'cat ' +
-                options.path +
-                ' | gunzip | ssh ' +
-                options.remoteHost +
-                " 'docker exec -i " +
-                options.remoteContainer.name +
-                ' mysql -u root -p' +
-                options.remoteContainer.env.MYSQL_ROOT_PASSWORD +
-                ' ' +
-                database +
-                "'"
+            `cat ${ 
+                options.path 
+                } | gunzip | ssh ${ 
+                options.remoteHost 
+                } 'docker exec -i ${ 
+                options.remoteContainer.name 
+                } mysql -u root -p${ 
+                options.remoteContainer.env.MYSQL_ROOT_PASSWORD 
+                } ${ 
+                database 
+                }'`
         );
     } else if (driver == 'mongodump') {
         var m = options.path.match(/([0-9a-zA-z_\-\.]+)\.archive$/);
@@ -133,18 +133,18 @@ async function restore(options) {
         if (!m) {
             let files = await fs.promises.readdir(options.path);
             database = await ask(files, 'Database ?');
-            options.path += '/' + database;
+            options.path += `/${  database}`;
             database = database.replace('.archive', '');
         } else database = m[1];
 
         await execCommand(
-            'cat ' +
-                options.path +
-                ' | ssh ' +
-                options.remoteHost +
-                " 'docker exec -i " +
-                options.remoteContainer.name +
-                " mongorestore --gzip --archive'"
+            `cat ${ 
+                options.path 
+                } | ssh ${ 
+                options.remoteHost 
+                } 'docker exec -i ${ 
+                options.remoteContainer.name 
+                } mongorestore --gzip --archive'`
         );
     } else {
         throw 'bad driver';

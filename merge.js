@@ -52,12 +52,12 @@ du -chs /backup/gextra.net/all/*
 
     var latest = await getLatestDir(path);
 
-    var globpath = latest + '/**';
-    var oldspath = path + '/*/';
+    var globpath = `${latest  }/**`;
+    var oldspath = `${path  }/*/`;
 
     var files = await glob(globpath, { nodir: true });
 
-    console.log('found ' + files.length + ' files');
+    console.log(`found ${  files.length  } files`);
 
     var olddirs = await glob(oldspath);
     olddirs = olddirs.map((d) => d.replace(/\/$/, ''));
@@ -65,14 +65,14 @@ du -chs /backup/gextra.net/all/*
 
     for (var i in files) {
         var file = files[i];
-        console.log(i + '/' + files.length + ' files');
+        console.log(`${i  }/${  files.length  } files`);
 
-        var smallpath = file.replace(latest + '/', '');
+        var smallpath = file.replace(`${latest  }/`, '');
 
         for (var olddir of olddirs) {
             if (olddir == latest) continue;
 
-            var oldfile = olddir + '/' + smallpath;
+            var oldfile = `${olddir  }/${  smallpath}`;
 
             var oldstat = null;
             try {
