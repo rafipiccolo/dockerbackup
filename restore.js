@@ -181,7 +181,7 @@ async function askList(choices, question) {
         {
             type: 'list',
             name: 'answer',
-            choices: choices,
+            choices,
             message: question,
         },
     ];
