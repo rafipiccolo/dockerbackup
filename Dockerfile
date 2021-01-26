@@ -8,16 +8,13 @@ RUN curl -L https://raw.githubusercontent.com/tj/n/master/bin/n -o n && \
 RUN npm install -g nodemon
 
 WORKDIR /usr/app
+EXPOSE 3000
+
+RUN curl -L https://github.com/krallin/tini/releases/download/v0.19.0/tini --output /tini && chmod +x /tini
+ENTRYPOINT ["/tini", "--"]
 
 COPY package*.json ./
 RUN npm install
 COPY . .
-
-EXPOSE 3000
-
-ENV TINI_VERSION v0.19.0
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
-RUN chmod +x /tini
-ENTRYPOINT ["/tini", "--"]
 
 CMD ["node", "server.js"]
