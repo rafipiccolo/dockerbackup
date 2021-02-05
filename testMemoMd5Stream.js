@@ -1,3 +1,5 @@
+'use strict';
+
 const fs = require('fs');
 const crypto = require('crypto');
 var memoizee = require('memoizee');

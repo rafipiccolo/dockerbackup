@@ -1,3 +1,5 @@
+'use strict';
+
 const moment = require('moment');
 const fs = require('fs');
 const path = require('path');

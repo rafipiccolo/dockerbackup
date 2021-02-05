@@ -1,3 +1,5 @@
+'use strict';
+
 const fs = require('fs');
 const glob = require('util').promisify(require('glob'));
 const crypto = require('crypto');

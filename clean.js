@@ -1,3 +1,5 @@
+'use strict';
+
 const moment = require('moment');
 const path = require('path');
 const glob = require('util').promisify(require('glob'));
