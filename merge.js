@@ -1,7 +1,9 @@
 'use strict';
 
 const fs = require('fs');
-const glob = require('util').promisify(require('glob'));
+var util = require('util');
+const glob = require('glob');
+const globPromise = util.promisify(glob);
 const crypto = require('crypto');
 var getLatestDir = require('./lib/getLatestDir');
 var memoizee = require('memoizee');
@@ -57,11 +59,11 @@ du -chs /backup/gextra.net/all/*
     var globpath = `${latest}/**`;
     var oldspath = `${path}/*/`;
 
-    var files = await glob(globpath, { nodir: true });
+    var files = await globPromise(globpath, { nodir: true });
 
     console.log(`found ${files.length} files`);
 
-    var olddirs = await glob(oldspath);
+    var olddirs = await globPromise(oldspath);
     olddirs = olddirs.map((d) => d.replace(/\/$/, ''));
     olddirs.sort((a, b) => b.localeCompare(a));
 
