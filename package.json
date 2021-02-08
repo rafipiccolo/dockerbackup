@@ -23,6 +23,7 @@
         "memoizee": "^0.4.15",
         "moment": "^2.29.1",
         "nano-time": "^1.0.0",
+        "pretty-ms": "^7.0.1",
         "request": "^2.88.2",
         "shell-escape": "^0.2.0"
     },

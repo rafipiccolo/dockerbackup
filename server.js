@@ -3,16 +3,16 @@
 const express = require('express');
 const moment = require('moment');
 var app = express();
+app.set('trust proxy', process.env.TRUST_PROXY ?? 1);
 var http = require('http');
 var server = http.Server(app);
 const port = process.env.PORT || 3000;
 const influxdb = require('./lib/influxdb');
 const checkDf = require('./lib/checkDf');
 
-app.use((req, res, next) => {
-    console.log(`${req.method} ${req.originalUrl}`);
-    next();
-});
+var expresslib = require('./lib/expresslib.js')
+app.use(expresslib.statmiddleware);
+app.use(expresslib.logmiddleware);
 
 app.get('/', async (req, res, next) => {
     res.sendFile(`${__dirname}/index.html`);
@@ -49,3 +49,10 @@ app.get('/health', (req, res) => {
 server.listen(port, function () {
     console.log(`ready to go on ${port}`);
 });
+
+app.get('/stats', function (req, res, next) {
+    return res.send(expresslib.getStatsBy(req.query.field || 'avg'));
+});
+
+app.use(expresslib.notfoundmiddleware);
+app.use(expresslib.errormiddleware);
