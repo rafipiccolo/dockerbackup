@@ -1,18 +1,16 @@
 'use strict';
 
 const express = require('express');
-const moment = require('moment');
+var monitoring = require('./lib/monitoring.js');
 var app = express();
 app.set('trust proxy', process.env.TRUST_PROXY ?? 1);
 var http = require('http');
 var server = http.Server(app);
-const port = process.env.PORT || 3000;
+monitoring.gracefulShutdown(server);
 const influxdb = require('./lib/influxdb');
-const checkDf = require('./lib/checkDf');
 
-var expresslib = require('./lib/expresslib.js');
-app.use(expresslib.statmiddleware);
-app.use(expresslib.logmiddleware);
+app.use(monitoring.statmiddleware);
+app.use(monitoring.logmiddleware);
 
 app.get('/', async (req, res, next) => {
     res.sendFile(`${__dirname}/index.html`);
@@ -46,13 +44,14 @@ app.get('/health', (req, res) => {
     res.send('ok');
 });
 
+app.get('/stats', function (req, res, next) {
+    return res.send(monitoring.getStatsBy(req.query.field || 'avg'));
+});
+
+app.use(monitoring.notfoundmiddleware);
+app.use(monitoring.errormiddleware(app));
+
+const port = process.env.PORT || 3000;
 server.listen(port, function () {
     console.log(`ready to go on ${port}`);
 });
-
-app.get('/stats', function (req, res, next) {
-    return res.send(expresslib.getStatsBy(req.query.field || 'avg'));
-});
-
-app.use(expresslib.notfoundmiddleware);
-app.use(expresslib.errormiddleware);

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Oops... Dommage, vous êtes bannis :)</title>
+        <meta name="description" content="Oops... Dommage, vous êtes bannis :)" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    </head>
+
+    <body
+        style="
+            background: url(/img/ban.jpg);
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+        "
+    >
+        <style>
+            html,
+            body {
+                height: 100%;
+                padding: 0;
+                margin: 0;
+            }
+        </style>
+        <div style="color: white; padding: 20px; margin: 0 auto; max-width: 100%; width: 500px; text-align: center">
+            <div style="font-size: 80px">Oops...</div>
+            <div style="font-size: 30px">
+                Dommage
+                <br />
+                Vous êtes bannis :)
+            </div>
+            <br />
+            <br />
+            <br />
+            <div style="font-size: 20px">
+                Si vous pensez qu'il s'agit d'une erreur veuillez prendre contact avec le service client en precisant votre adresse ip afin que nous
+                puissions débloquer votre accès.<br /><br />
+                <span id="ip"></span>
+            </div>
+        </div>
+        <script
+            src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"
+        ></script>
+        <script>
+            $.get('/ip', function (data) {
+                $('#ip').html('Votre adresse ip: ' + data);
+            });
+        </script>
+    </body>
+</html>
