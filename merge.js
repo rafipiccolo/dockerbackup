@@ -1,5 +1,3 @@
-'use strict';
-
 const fs = require('fs');
 var util = require('util');
 const glob = require('glob');

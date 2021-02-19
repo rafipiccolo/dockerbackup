@@ -1,5 +1,3 @@
-'use strict';
-
 const express = require('express');
 var monitoring = require('./lib/monitoring.js');
 var app = express();
