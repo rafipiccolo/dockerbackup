@@ -7,8 +7,10 @@ var server = http.Server(app);
 monitoring.gracefulShutdown(server);
 const influxdb = require('./lib/influxdb');
 
+app.use(monitoring.idmiddleware);
 app.use(monitoring.statmiddleware);
 app.use(monitoring.logmiddleware);
+monitoring.healthmiddleware(app);
 
 app.get('/', async (req, res, next) => {
     res.sendFile(`${__dirname}/index.html`);
@@ -36,10 +38,6 @@ app.get('/data', async (req, res, next) => {
     } catch (err) {
         next(err);
     }
-});
-
-app.get('/health', (req, res) => {
-    res.send('ok');
 });
 
 app.get('/stats', function (req, res, next) {
