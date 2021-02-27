@@ -19,7 +19,8 @@
     "dependencies": {
         "express": "^4.17.1",
         "glob": "^7.1.6",
-        "inquirer": "^7.3.3",
+        "inquire": "^0.4.8",
+        "inquirer": "^8.0.0",
         "memoizee": "^0.4.15",
         "moment": "^2.29.1",
         "nano-time": "^1.0.0",
