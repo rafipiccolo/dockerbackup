@@ -4,13 +4,12 @@ var app = express();
 app.set('trust proxy', process.env.TRUST_PROXY ?? 1);
 var http = require('http');
 var server = http.Server(app);
-monitoring.gracefulShutdown(server);
+monitoring.gracefulShutdown(server, app);
 const influxdb = require('./lib/influxdb');
 
 app.use(monitoring.idmiddleware);
 app.use(monitoring.statmiddleware);
 app.use(monitoring.logmiddleware);
-monitoring.healthmiddleware(app);
 
 app.get('/', async (req, res, next) => {
     res.sendFile(`${__dirname}/index.html`);
