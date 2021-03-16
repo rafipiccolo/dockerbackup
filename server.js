@@ -30,7 +30,7 @@ app.get('/data', async (req, res, next) => {
         |> range(start: -5m)
         |> filter(fn: (r) => r["_measurement"] == "dockerbackup")
         ${parseInt(req.query.error) ? '|> filter(fn: (r) => r["_field"] == "error" and r["_value"] == 1)' : ''}
-        ${req.query.driver ? '|> filter(fn: (r) => r["driver"] == "${req.query.driver}")' : ''}
+        ${req.query.driver ? `|> filter(fn: (r) => r["driver"] == "${req.query.driver}")` : ''}
         |> filter(fn: (r) => r["hostname"] == "${process.env.HOSTNAME}")
         |> sort(columns:["_time"], desc: true)
         |> limit(n:1000)`;
