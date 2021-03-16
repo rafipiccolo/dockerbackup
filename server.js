@@ -26,13 +26,15 @@ app.get('/stat', async (req, res, next) => {
 
 app.get('/data', async (req, res, next) => {
     try {
-        var sql = '';
+        var sql = `from(bucket: "bucket")
+        |> range(start: -5m)
+        |> filter(fn: (r) => r["_measurement"] == "dockerbackup")
+        ${parseInt(req.query.error) ? '|> filter(fn: (r) => r["_field"] == "error" and r["_value"] == 1)' : ''}
+        ${req.query.driver ? '|> filter(fn: (r) => r["driver"] == "${req.query.driver}")' : ''}
+        |> filter(fn: (r) => r["hostname"] == "${process.env.HOSTNAME}")
+        |> sort(columns:["_time"], desc: true)
+        |> limit(n:1000)`;
 
-        var wheres = [];
-        if (parseInt(req.query.error)) wheres.push(`"error" = 1`);
-        if (req.query.driver) wheres.push(`"driver" = '${req.query.driver}'`);
-        wheres.push(`"backuphost" = '${process.env.HOSTNAME}'`);
-        sql = `select * from dockerbackup where ${wheres.join(' and ')} order by time desc limit 1000`;
         var data = await influxdb.query(sql);
         res.send(data);
     } catch (err) {
