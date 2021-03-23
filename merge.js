@@ -1,17 +1,17 @@
 const fs = require('fs');
-var util = require('util');
+let util = require('util');
 const glob = require('glob');
 const globPromise = util.promisify(glob);
 const crypto = require('crypto');
-var getLatestDir = require('./lib/getLatestDir');
-var memoizee = require('memoizee');
+let getLatestDir = require('./lib/getLatestDir');
+let memoizee = require('memoizee');
 
-var memoizedMd5OnFilename = memoizee(
+let memoizedMd5OnFilename = memoizee(
     function (file, callback) {
         // return crypto.createHash('md5').update(fs.readFileSync(oldfile)).digest("hex")
 
-        var s = fs.createReadStream(file);
-        var hash = crypto.createHash('md5');
+        let s = fs.createReadStream(file);
+        let hash = crypto.createHash('md5');
         s.on('data', function (data) {
             hash.update(data);
         });
@@ -25,7 +25,7 @@ var memoizedMd5OnFilename = memoizee(
     { async: true }
 );
 
-var promisifiedMemoizedMd5OnFilename = require('util').promisify(memoizedMd5OnFilename);
+let promisifiedMemoizedMd5OnFilename = require('util').promisify(memoizedMd5OnFilename);
 
 /*
 node merge.js /backup/ideaz.world/all
@@ -48,35 +48,35 @@ du -chs /backup/gextra.net/all/*
 */
 
 (async function () {
-    // var path = '/backup/ideaz.world/all';
-    var path = process.argv[2];
+    // let path = '/backup/ideaz.world/all';
+    let path = process.argv[2];
     if (!path) return console.log('please provide a path to check : eg /backup/ideaz.world/all');
 
-    var latest = await getLatestDir(path);
+    let latest = await getLatestDir(path);
 
-    var globpath = `${latest}/**`;
-    var oldspath = `${path}/*/`;
+    let globpath = `${latest}/**`;
+    let oldspath = `${path}/*/`;
 
-    var files = await globPromise(globpath, { nodir: true });
+    let files = await globPromise(globpath, { nodir: true });
 
     console.log(`found ${files.length} files`);
 
-    var olddirs = await globPromise(oldspath);
+    let olddirs = await globPromise(oldspath);
     olddirs = olddirs.map((d) => d.replace(/\/$/, ''));
     olddirs.sort((a, b) => b.localeCompare(a));
 
-    for (var i in files) {
-        var file = files[i];
+    for (let i in files) {
+        let file = files[i];
         console.log(`${i}/${files.length} files`);
 
-        var smallpath = file.replace(`${latest}/`, '');
+        let smallpath = file.replace(`${latest}/`, '');
 
-        for (var olddir of olddirs) {
+        for (let olddir of olddirs) {
             if (olddir == latest) continue;
 
-            var oldfile = `${olddir}/${smallpath}`;
+            let oldfile = `${olddir}/${smallpath}`;
 
-            var oldstat = null;
+            let oldstat = null;
             try {
                 oldstat = await fs.promises.stat(oldfile);
             } catch (err) {
@@ -84,7 +84,7 @@ du -chs /backup/gextra.net/all/*
                 continue;
             }
 
-            var filestat = await fs.promises.stat(file);
+            let filestat = await fs.promises.stat(file);
 
             if (oldstat.ino == filestat.ino) {
                 // console.log(oldfile, file, 'already merged');

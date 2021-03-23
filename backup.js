@@ -14,8 +14,8 @@ const mongodump = require('./lib/mongodump');
 
 const influxdb = require('./lib/influxdb');
 
-var userhosts = process.argv[2];
-var drivers = process.argv[3];
+let userhosts = process.argv[2];
+let drivers = process.argv[3];
 if (!drivers) drivers = 'rsync,rsynclive,mysqldump,mongodump';
 
 if (process.argv.length > 4 || !userhosts) {
@@ -28,9 +28,9 @@ const now = moment().format('YYYY-MM-DD--HH');
 (async function () {
     userhosts = userhosts.split(',');
     drivers = drivers.split(',');
-    for (var userhost of userhosts) {
-        for (var driver of drivers) {
-            var m = userhost.match(/([a-z0-9\.\-]+)@([a-z0-9\.\-]+)/i);
+    for (let userhost of userhosts) {
+        for (let driver of drivers) {
+            let m = userhost.match(/([a-z0-9\.\-]+)@([a-z0-9\.\-]+)/i);
             if (!m) {
                 console.error('please specify a user@hostname (separated by ",")');
                 process.exit(1);
@@ -46,7 +46,7 @@ const now = moment().format('YYYY-MM-DD--HH');
 async function main(user, host, driver, now) {
     try {
         // get and parse labels from remote docker
-        var containers = await getDockerInspect({ user, host });
+        let containers = await getDockerInspect({ user, host });
         containers = containers.map(parseContainer).filter((container) => container);
 
         verbose(`found ${containers.length} backup jobs`);
@@ -97,9 +97,9 @@ async function main(user, host, driver, now) {
 
         // incremental backup using rsync
         if (driver == 'rsync') {
-            var linkdest = await getLatestDir(`/backup/${host}/all/`);
-            var realoutput = `/backup/${host}/all/${now}/`;
-            var tmpoutput = `/backup/.tmp/${host}.all.${now}/`;
+            let linkdest = await getLatestDir(`/backup/${host}/all/`);
+            let realoutput = `/backup/${host}/all/${now}/`;
+            let tmpoutput = `/backup/.tmp/${host}.all.${now}/`;
             const params = {
                 host,
                 user,
@@ -150,7 +150,7 @@ async function main(user, host, driver, now) {
         for (const container of containers) {
             if (driver == container.driver) {
                 if (container.driver == 'mysqldump') {
-                    var dbs = [];
+                    let dbs = [];
                     try {
                         dbs = await getMysqlDbs({
                             host,
@@ -170,12 +170,12 @@ async function main(user, host, driver, now) {
 
                     // on retire les db ignorées
                     container.ignore = container.ignore || [];
-                    var ignoreTables = container.ignore.filter((ignore) => ignore.includes('.'));
+                    let ignoreTables = container.ignore.filter((ignore) => ignore.includes('.'));
                     dbs = dbs.filter((db) => !container.ignore.includes(db));
 
-                    for (var db of dbs) {
-                        var realoutput = `/backup/${host}/${container.name}/mysqldump/${now}/${db}.sql.gz`;
-                        var tmpoutput = `/backup/.tmp/${host}.${container.name}.mysqldump.${now}.${db}.sql.gz`;
+                    for (let db of dbs) {
+                        let realoutput = `/backup/${host}/${container.name}/mysqldump/${now}/${db}.sql.gz`;
+                        let tmpoutput = `/backup/.tmp/${host}.${container.name}.mysqldump.${now}.${db}.sql.gz`;
 
                         const params = {
                             host,
@@ -210,7 +210,7 @@ async function main(user, host, driver, now) {
                         }
                     }
                 } else if (container.driver == 'mongodump') {
-                    var dbs = [];
+                    let dbs = [];
                     try {
                         dbs = await getMongoDbs({
                             host,
@@ -228,9 +228,9 @@ async function main(user, host, driver, now) {
 
                     // on retire les db ignorées
                     container.ignore = container.ignore || [];
-                    for (var db of dbs) {
-                        var realoutput = `/backup/${host}/${container.name}/mysqldump/${now}/${db}.archive`;
-                        var tmpoutput = `/backup/.tmp/${host}.${container.name}.mysqldump.${now}.${db}.archive`;
+                    for (let db of dbs) {
+                        let realoutput = `/backup/${host}/${container.name}/mysqldump/${now}/${db}.archive`;
+                        let tmpoutput = `/backup/.tmp/${host}.${container.name}.mysqldump.${now}.${db}.archive`;
 
                         const params = {
                             host,

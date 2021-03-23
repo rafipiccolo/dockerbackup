@@ -18,9 +18,9 @@
         <div id="root"></div>
         <script type="text/babel">
             function Liste() {
-                var [backups, setBackups] = React.useState([]);
-                var [error, setError] = React.useState(0);
-                var [driver, setDriver] = React.useState('');
+                let [backups, setBackups] = React.useState([]);
+                let [error, setError] = React.useState(0);
+                let [driver, setDriver] = React.useState('');
 
                 React.useEffect(() => {
                     (async () => {

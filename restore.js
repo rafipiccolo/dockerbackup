@@ -1,6 +1,6 @@
-var inquirer = require('inquirer');
-var fs = require('fs');
-var util = require('util');
+let inquirer = require('inquirer');
+let fs = require('fs');
+let util = require('util');
 const getDockerInspect = require('./lib/getDockerInspect');
 const { exec } = require('child_process');
 const verbose = require('./lib/verbose');
@@ -8,11 +8,11 @@ const rsync = require('./lib/rsync');
 
 (async function () {
     // get args
-    var remoteUser = process.argv[2];
-    var remoteHost = process.argv[3];
-    var remoteContainer = process.argv[4];
-    var paths = [];
-    for (var i in process.argv) {
+    let remoteUser = process.argv[2];
+    let remoteHost = process.argv[3];
+    let remoteContainer = process.argv[4];
+    let paths = [];
+    for (let i in process.argv) {
         if (i < 5) continue;
         paths.push(process.argv[i]);
     }
@@ -35,10 +35,10 @@ const rsync = require('./lib/rsync');
     }
 
     // ask for the remote Container
-    var containers = await getDockerInspect({ user: remoteUser, host: remoteHost });
+    let containers = await getDockerInspect({ user: remoteUser, host: remoteHost });
 
     if (!remoteContainer) {
-        var containerNames = containers.map((c) => c.name);
+        let containerNames = containers.map((c) => c.name);
         remoteContainer = await askList(containerNames, 'Destination container ?');
     }
 
@@ -47,43 +47,51 @@ const rsync = require('./lib/rsync');
 
     // if there is no path specified, ask for it
     if (paths.length == 0) {
-        var path = '/backup';
+        let path = '/backup';
 
-        var files = await fs.promises.readdir(path);
-        files.filter((file) => file != '/backup/.tmp');
-        var server = await ask(files, 'Server ?');
-        path += `/${server}`;
+        {
+            let files = await fs.promises.readdir(path);
+            files.filter((file) => file != '/backup/.tmp');
+            let server = await ask(files, 'Server ?');
+            path += `/${server}`;
+        }
 
-        var files = await fs.promises.readdir(path);
-        var container = await ask(files, 'Container ?');
-        path += `/${container}`;
+        {
+            let files = await fs.promises.readdir(path);
+            let container = await ask(files, 'Container ?');
+            path += `/${container}`;
+        }
 
-        var files = await fs.promises.readdir(path);
-        var driver = await ask(files, 'Driver ?');
-        path += `/${driver}`;
+        {
+            let files = await fs.promises.readdir(path);
+            let driver = await ask(files, 'Driver ?');
+            path += `/${driver}`;
+        }
 
-        var files = await fs.promises.readdir(path);
-        var time = await ask(files, 'time ?');
-        path += `/${time}`;
+        {
+            let files = await fs.promises.readdir(path);
+            let time = await ask(files, 'time ?');
+            path += `/${time}`;
+        }
 
         paths.push(path);
     }
 
     // we restore every path
-    for (var path of paths) await restore({ path, remoteHost, remoteContainer });
+    for (let path of paths) await restore({ path, remoteHost, remoteContainer });
 
     console.log('Done');
 })();
 
 async function restore(options) {
-    var m = options.path.match(/\/backup\/([0-9a-zA-z_\-\.]+)\/([0-9a-zA-z_\-\.]+)\/([0-9a-zA-z_\-\.]+)\/([0-9a-zA-z_\-\.]+)/);
+    let m = options.path.match(/\/backup\/([0-9a-zA-z_\-\.]+)\/([0-9a-zA-z_\-\.]+)\/([0-9a-zA-z_\-\.]+)\/([0-9a-zA-z_\-\.]+)/);
 
     if (!m) throw 'bad path';
-    var [_, server, container, driver, time] = m;
+    let [_, server, container, driver, time] = m;
 
     if (driver == 'rsync') {
         if ((await fs.promises.stat(options.path)).isDirectory() && options.path[options.path.length - 1] != '/') options.path = `${options.path}/`;
-        var file = options.path.replace(`/backup/${server}/${driver}/${time}/`, '');
+        let file = options.path.replace(`/backup/${server}/${driver}/${time}/`, '');
         const params = {
             host: options.remoteHost,
             user: options.remoteUser,
@@ -94,8 +102,8 @@ async function restore(options) {
         const res = await rsync(params);
         console.log(`${container.driver}@${container.name} done ${res.ms}ms ${res.size}o`);
     } else if (driver == 'mysqldump') {
-        var m = options.path.match(/([0-9a-zA-z_\-\.]+)\.sql\.gz$/);
-        var database = '';
+        let m = options.path.match(/([0-9a-zA-z_\-\.]+)\.sql\.gz$/);
+        let database = '';
         if (!m) {
             let files = await fs.promises.readdir(options.path);
             database = await ask(files, 'Database ?');
@@ -110,8 +118,8 @@ async function restore(options) {
             `cat ${options.path} | gunzip | ssh ${options.remoteHost} 'docker exec -i ${options.remoteContainer.name} mysql -u root -p${options.remoteContainer.env.MYSQL_ROOT_PASSWORD} ${database}'`
         );
     } else if (driver == 'mongodump') {
-        var m = options.path.match(/([0-9a-zA-z_\-\.]+)\.archive$/);
-        var database = '';
+        let m = options.path.match(/([0-9a-zA-z_\-\.]+)\.archive$/);
+        let database = '';
         if (!m) {
             let files = await fs.promises.readdir(options.path);
             database = await ask(files, 'Database ?');
@@ -128,7 +136,7 @@ async function restore(options) {
 }
 
 async function ask(files, question) {
-    var question = [
+    let params = [
         {
             type: 'list',
             name: 'answer',
@@ -136,24 +144,24 @@ async function ask(files, question) {
             choices: files,
         },
     ];
-    var answer = await inquirer.prompt(question);
+    let answer = await inquirer.prompt(params);
     return answer.answer;
 }
 
 async function askText(question) {
-    var question = [
+    let params = [
         {
             type: 'input',
             name: 'answer',
             message: question,
         },
     ];
-    var answer = await inquirer.prompt(question);
+    let answer = await inquirer.prompt(params);
     return answer.answer;
 }
 
 async function askList(choices, question) {
-    var question = [
+    let params = [
         {
             type: 'list',
             name: 'answer',
@@ -161,7 +169,7 @@ async function askList(choices, question) {
             message: question,
         },
     ];
-    var answer = await inquirer.prompt(question);
+    let answer = await inquirer.prompt(params);
     return answer.answer;
 }
 

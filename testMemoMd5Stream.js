@@ -1,13 +1,13 @@
 const fs = require('fs');
 const crypto = require('crypto');
-var memoizee = require('memoizee');
+let memoizee = require('memoizee');
 
-var memoizedMd5OnFilename = memoizee(
+let memoizedMd5OnFilename = memoizee(
     function (file, callback) {
         // return crypto.createHash('md5').update(fs.readFileSync(oldfile)).digest("hex")
 
-        var s = fs.createReadStream(file);
-        var hash = crypto.createHash('md5');
+        let s = fs.createReadStream(file);
+        let hash = crypto.createHash('md5');
         s.on('data', function (data) {
             hash.update(data);
         });
@@ -21,7 +21,7 @@ var memoizedMd5OnFilename = memoizee(
     { async: true }
 );
 
-var promisifiedMemoizedMd5OnFilename = require('util').promisify(memoizedMd5OnFilename);
+let promisifiedMemoizedMd5OnFilename = require('util').promisify(memoizedMd5OnFilename);
 
 promisifiedMemoizedMd5OnFilename('g.js')
     .then(console.log)

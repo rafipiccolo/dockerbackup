@@ -1,9 +1,9 @@
 const moment = require('moment');
 const path = require('path');
-var util = require('util');
+let util = require('util');
 const glob = require('glob');
 const globPromise = util.promisify(glob);
-var execFile = require('child_process').execFile;
+let execFile = require('child_process').execFile;
 
 function execFilePromise(cmd, params) {
     return new Promise((resolve, reject) => {
@@ -18,16 +18,16 @@ function execFilePromise(cmd, params) {
 
 (async () => {
     // vide les vieux backups
-    var dirs1 = await globPromise('/backup/*/all/*');
-    var dirs2 = await globPromise('/backup/*/mysql/mysqldump/*');
-    var dirs = [...dirs1, ...dirs2];
+    let dirs1 = await globPromise('/backup/*/all/*');
+    let dirs2 = await globPromise('/backup/*/mysql/mysqldump/*');
+    let dirs = [...dirs1, ...dirs2];
 
     for (let dir of dirs) {
-        var basename = path.basename(dir);
-        var m = basename.match(/^(\d+)-(\d+)-(\d+)--(\d+)/);
+        let basename = path.basename(dir);
+        let m = basename.match(/^(\d+)-(\d+)-(\d+)--(\d+)/);
         if (!m) continue;
 
-        var date = new Date(`${m[1]}-${m[2]}-${m[3]} ${m[4]}:00`);
+        let date = new Date(`${m[1]}-${m[2]}-${m[3]} ${m[4]}:00`);
 
         // if sql
         if (dirs2.includes(dir)) {
@@ -54,7 +54,7 @@ function execFilePromise(cmd, params) {
     }
 
     // vide .tmp car si on lance clean c'est qu'on a fini de backuper
-    var dirs3 = await globPromise('/backup/.tmp/*');
+    let dirs3 = await globPromise('/backup/.tmp/*');
     for (let dir of dirs3) {
         console.log('deleting old failed backup', dir);
 
