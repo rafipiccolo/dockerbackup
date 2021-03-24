@@ -81,12 +81,12 @@ const rsync = require('./lib/rsync');
     for (let path of paths) await restore({ path, remoteHost, remoteContainer });
 
     console.log('Done');
-})();
+}());
 
 async function restore(options) {
     let m = options.path.match(/\/backup\/([0-9a-zA-z_\-\.]+)\/([0-9a-zA-z_\-\.]+)\/([0-9a-zA-z_\-\.]+)\/([0-9a-zA-z_\-\.]+)/);
 
-    if (!m) throw 'bad path';
+    if (!m) throw new Error('bad path');
     let [_, server, container, driver, time] = m;
 
     if (driver == 'rsync') {
@@ -131,7 +131,7 @@ async function restore(options) {
             `cat ${options.path} | ssh ${options.remoteHost} 'docker exec -i ${options.remoteContainer.name} mongorestore --gzip --archive'`
         );
     } else {
-        throw 'bad driver';
+        throw new Error('bad driver');
     }
 }
 

@@ -41,7 +41,7 @@ const now = moment().format('YYYY-MM-DD--HH');
     }
 
     console.log(`all done`);
-})();
+}());
 
 async function main(user, host, driver, now) {
     try {
