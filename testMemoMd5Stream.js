@@ -3,18 +3,18 @@ const crypto = require('crypto');
 let memoizee = require('memoizee');
 
 let memoizedMd5OnFilename = memoizee(
-    function (file, callback) {
+    (file, callback) => {
         // return crypto.createHash('md5').update(fs.readFileSync(oldfile)).digest("hex")
 
         let s = fs.createReadStream(file);
         let hash = crypto.createHash('md5');
-        s.on('data', function (data) {
+        s.on('data', (data) => {
             hash.update(data);
         });
-        s.on('end', function (data) {
+        s.on('end', (data) => {
             callback(null, hash.digest('hex'));
         });
-        s.on('error', function (err) {
+        s.on('error', (err) => {
             callback(err);
         });
     },

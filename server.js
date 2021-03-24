@@ -42,7 +42,7 @@ app.get('/data', async (req, res, next) => {
     }
 });
 
-app.get('/stats', function (req, res, next) {
+app.get('/stats', (req, res, next) => {
     return res.send(monitoring.getStatsBy(req.query.field || 'avg'));
 });
 
@@ -50,6 +50,6 @@ app.use(monitoring.notfoundmiddleware);
 app.use(monitoring.errormiddleware(app));
 
 const port = process.env.PORT || 3000;
-server.listen(port, function () {
+server.listen(port, () => {
     console.log(`ready to go on ${port}`);
 });

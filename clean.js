@@ -7,7 +7,7 @@ let execFile = require('child_process').execFile;
 
 function execFilePromise(cmd, params) {
     return new Promise((resolve, reject) => {
-        execFile(cmd, params, function (err, stdout, stderr) {
+        execFile(cmd, params, (err, stdout, stderr) => {
             if (err) return reject(err);
             if (stderr) return reject(stderr);
 
