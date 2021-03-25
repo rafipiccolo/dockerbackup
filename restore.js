@@ -81,7 +81,7 @@ const rsync = require('./lib/rsync');
     for (let path of paths) await restore({ path, remoteHost, remoteContainer });
 
     console.log('Done');
-}());
+})();
 
 async function restore(options) {
     let m = options.path.match(/\/backup\/([0-9a-zA-z_\-\.]+)\/([0-9a-zA-z_\-\.]+)\/([0-9a-zA-z_\-\.]+)\/([0-9a-zA-z_\-\.]+)/);

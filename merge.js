@@ -110,4 +110,4 @@ du -chs /backup/gextra.net/all/*
             console.log(oldfile, file, 'merged');
         }
     }
-}());
+})();
