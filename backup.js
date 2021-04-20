@@ -59,6 +59,10 @@ async function main(user, host, driver, now) {
                 path: '/root/',
                 output: `/backup/${host}/rsynclive/`,
                 excludes: [
+                    'dockerdata/mysql',
+                    'dockerdata/mongo',
+                    'dockerdata/influxdb',
+                    'dockerlog/',
                     'node_modules/',
                     'docker/mysql/data',
                     'docker/mongo',
@@ -107,6 +111,10 @@ async function main(user, host, driver, now) {
                 output: tmpoutput,
                 linkdest: linkdest ? `${linkdest}/` : null,
                 excludes: [
+                    'dockerdata/mysql',
+                    'dockerdata/mongo',
+                    'dockerdata/influxdb',
+                    'dockerlog/',
                     'node_modules/',
                     'docker/mysql/data',
                     'docker/mongo',
