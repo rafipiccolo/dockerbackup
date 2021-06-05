@@ -7,6 +7,10 @@ let server = http.Server(app);
 monitoring.gracefulShutdown(server, app);
 const influxdb = require('./lib/influxdb');
 
+app.get('/favicon.ico', (req, res) => {
+    res.sendFile(`${__dirname}/web/img/favicon.png`);
+});
+
 app.use(monitoring.idmiddleware);
 app.use(monitoring.statmiddleware);
 app.use(monitoring.logmiddleware);
