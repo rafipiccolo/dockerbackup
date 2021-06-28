@@ -1,7 +1,7 @@
 const moment = require('moment');
 const fs = require('fs');
 const path = require('path');
-const getDockerInspect = require('./lib/getDockerInspect');
+const getDockerInspectAll = require('./lib/getDockerInspectAll');
 const parseContainer = require('./lib/parseContainer');
 const verbose = require('./lib/verbose');
 const getLatestDir = require('./lib/getLatestDir');
@@ -46,7 +46,7 @@ const now = moment().format('YYYY-MM-DD--HH');
 async function main(user, host, driver, now) {
     try {
         // get and parse labels from remote docker
-        let containers = await getDockerInspect({ user, host });
+        let containers = await getDockerInspectAll({ user, host });
         containers = containers.map(parseContainer).filter((container) => container);
 
         verbose(`found ${containers.length} backup jobs`);
