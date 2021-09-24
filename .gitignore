@@ -3,7 +3,7 @@ node_modules/
 test.js
 *~
 \#*#
-core
+/core
 log/
 logs/
 *.log
