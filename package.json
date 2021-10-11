@@ -1,6 +1,6 @@
 {
     "name": "dockerbackup",
-    "version": "1.0.34",
+    "version": "1.0.35",
     "description": "register backup jobs in docker labels.",
     "main": "server.js",
     "scripts": {
@@ -17,6 +17,7 @@
     "homepage": "https://github.com/rafipiccolo/dockerbackup#readme",
     "license": "ICS",
     "dependencies": {
+        "@babel/eslint-parser": "^7.15.8",
         "@influxdata/influxdb-client": "^1.18.0",
         "express": "^4.17.1",
         "glob": "^7.2.0",
@@ -29,7 +30,6 @@
         "uniqid": "^5.4.0"
     },
     "devDependencies": {
-        "babel-eslint": "^10.1.0",
         "prettier": "^2.4.1"
     }
 }
