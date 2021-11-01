@@ -1,4 +1,4 @@
 {
-    "ignore": ["node_modules/**", "data/**", "log/**", "web/**"],
+    "ignore": ["node_modules/", "data/", "log/", "web/"],
     "ext": "js,json,po"
 }

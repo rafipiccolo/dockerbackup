@@ -15,3 +15,8 @@ Thumbs.db
 .npm
 .vscode*
 config.js
+.vercel
+*.pem
+*.key
+*.p12
+*.p8
