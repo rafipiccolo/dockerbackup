@@ -1,18 +1,18 @@
-const moment = require('moment');
-const fs = require('fs');
-const path = require('path');
-const getDockerInspectAll = require('./lib/getDockerInspectAll');
-const parseContainer = require('./lib/parseContainer');
-const verbose = require('./lib/verbose');
-const getLatestDir = require('./lib/getLatestDir');
-const getMysqlDbs = require('./lib/getMysqlDbs');
-const getMongoDbs = require('./lib/getMongoDbs');
+import moment from 'moment';
+import fs from 'fs';
+import path from 'path';
+import getDockerInspectAll from './lib/getDockerInspectAll.js';
+import parseContainer from './lib/parseContainer.js';
+import verbose from './lib/verbose.js';
+import getLatestDir from './lib/getLatestDir.js';
+import getMysqlDbs from './lib/getMysqlDbs.js';
+import getMongoDbs from './lib/getMongoDbs.js';
 
-const rsync = require('./lib/rsync');
-const mysqldump = require('./lib/mysqldump');
-const mongodump = require('./lib/mongodump');
+import rsync from './lib/rsync.js';
+import mysqldump from './lib/mysqldump.js';
+import mongodump from './lib/mongodump.js';
 
-const influxdb = require('./lib/influxdb');
+import influxdb from './lib/influxdb.js';
 
 let userhosts = process.argv[2];
 let drivers = process.argv[3];
@@ -25,23 +25,21 @@ if (process.argv.length > 4 || !userhosts) {
 
 const now = moment().format('YYYY-MM-DD--HH');
 
-(async function () {
-    userhosts = userhosts.split(',');
-    drivers = drivers.split(',');
-    for (let userhost of userhosts) {
-        for (let driver of drivers) {
-            let m = userhost.match(/([a-z0-9\.\-]+)@([a-z0-9\.\-]+)/i);
-            if (!m) {
-                console.error('please specify a user@hostname (separated by ",")');
-                process.exit(1);
-            }
-            const [_, user, host] = m;
-            await main(user, host, driver, now);
+userhosts = userhosts.split(',');
+drivers = drivers.split(',');
+for (let userhost of userhosts) {
+    for (let driver of drivers) {
+        let m = userhost.match(/([a-z0-9\.\-]+)@([a-z0-9\.\-]+)/i);
+        if (!m) {
+            console.error('please specify a user@hostname (separated by ",")');
+            process.exit(1);
         }
+        const [_, user, host] = m;
+        await main(user, host, driver, now);
     }
+}
 
-    console.log(`all done`);
-})();
+console.log(`all done`);
 
 async function main(user, host, driver, now) {
     try {

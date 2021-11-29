@@ -1,87 +1,85 @@
-let inquirer = require('inquirer');
-let fs = require('fs');
-let util = require('util');
-const getDockerInspect = require('./lib/getDockerInspect');
-const { exec } = require('child_process');
-const verbose = require('./lib/verbose');
-const rsync = require('./lib/rsync');
+import inquirer from 'inquirer';
+import fs from 'fs';
+import util from 'util';
+import getDockerInspect from './lib/getDockerInspect.js';
+import { exec } from 'child_process';
+import verbose from './lib/verbose.js';
+import rsync from './lib/rsync.js';
 
-(async function () {
-    // get args
-    let remoteUser = process.argv[2];
-    let remoteHost = process.argv[3];
-    let remoteContainer = process.argv[4];
-    let paths = [];
-    for (let i in process.argv) {
-        if (i < 5) continue;
-        paths.push(process.argv[i]);
+// get args
+let remoteUser = process.argv[2];
+let remoteHost = process.argv[3];
+let remoteContainer = process.argv[4];
+let paths = [];
+for (let i in process.argv) {
+    if (i < 5) continue;
+    paths.push(process.argv[i]);
+}
+
+if (!remoteUser) {
+    console.log('Usage');
+    console.log('');
+    console.log('Automatic mode : inquire will ask questions');
+    console.log('    node restore.js');
+    console.log('');
+    console.log('Manual mode :');
+    console.log('    node restore.js remoteUser remoteHost remoteContainer filesToRestore');
+    console.log('    node restore.js root exemple.net mysql /backup/exemple.net/mysql/mysqldump/2020-05-20--01/exemple.sql.gz');
+    console.log('');
+    remoteUser = await askText('Remote user ?');
+}
+
+if (!remoteHost) {
+    remoteHost = await askText('Remote host ?');
+}
+
+// ask for the remote Container
+let containers = await getDockerInspect({ user: remoteUser, host: remoteHost });
+
+if (!remoteContainer) {
+    let containerNames = containers.map((c) => c.name);
+    remoteContainer = await askList(containerNames, 'Destination container ?');
+}
+
+remoteContainer = containers.filter((c) => c.name == remoteContainer);
+remoteContainer = remoteContainer[0];
+
+// if there is no path specified, ask for it
+if (paths.length == 0) {
+    let path = '/backup';
+
+    {
+        let files = await fs.promises.readdir(path);
+        files.filter((file) => file != '/backup/.tmp');
+        let server = await ask(files, 'Server ?');
+        path += `/${server}`;
     }
 
-    if (!remoteUser) {
-        console.log('Usage');
-        console.log('');
-        console.log('Automatic mode : inquire will ask questions');
-        console.log('    node restore.js');
-        console.log('');
-        console.log('Manual mode :');
-        console.log('    node restore.js remoteUser remoteHost remoteContainer filesToRestore');
-        console.log('    node restore.js root exemple.net mysql /backup/exemple.net/mysql/mysqldump/2020-05-20--01/exemple.sql.gz');
-        console.log('');
-        remoteUser = await askText('Remote user ?');
+    {
+        let files = await fs.promises.readdir(path);
+        let container = await ask(files, 'Container ?');
+        path += `/${container}`;
     }
 
-    if (!remoteHost) {
-        remoteHost = await askText('Remote host ?');
+    {
+        let files = await fs.promises.readdir(path);
+        let driver = await ask(files, 'Driver ?');
+        path += `/${driver}`;
     }
 
-    // ask for the remote Container
-    let containers = await getDockerInspect({ user: remoteUser, host: remoteHost });
-
-    if (!remoteContainer) {
-        let containerNames = containers.map((c) => c.name);
-        remoteContainer = await askList(containerNames, 'Destination container ?');
+    {
+        let files = await fs.promises.readdir(path);
+        let time = await ask(files, 'time ?');
+        path += `/${time}`;
     }
 
-    remoteContainer = containers.filter((c) => c.name == remoteContainer);
-    remoteContainer = remoteContainer[0];
+    paths.push(path);
+}
 
-    // if there is no path specified, ask for it
-    if (paths.length == 0) {
-        let path = '/backup';
+// we restore every path
+for (let path of paths) await restore({ path, remoteHost, remoteContainer });
 
-        {
-            let files = await fs.promises.readdir(path);
-            files.filter((file) => file != '/backup/.tmp');
-            let server = await ask(files, 'Server ?');
-            path += `/${server}`;
-        }
-
-        {
-            let files = await fs.promises.readdir(path);
-            let container = await ask(files, 'Container ?');
-            path += `/${container}`;
-        }
-
-        {
-            let files = await fs.promises.readdir(path);
-            let driver = await ask(files, 'Driver ?');
-            path += `/${driver}`;
-        }
-
-        {
-            let files = await fs.promises.readdir(path);
-            let time = await ask(files, 'time ?');
-            path += `/${time}`;
-        }
-
-        paths.push(path);
-    }
-
-    // we restore every path
-    for (let path of paths) await restore({ path, remoteHost, remoteContainer });
-
-    console.log('Done');
-})();
+console.log('Done');
 
 async function restore(options) {
     let m = options.path.match(/\/backup\/([0-9a-zA-z_\-\.]+)\/([0-9a-zA-z_\-\.]+)\/([0-9a-zA-z_\-\.]+)\/([0-9a-zA-z_\-\.]+)/);

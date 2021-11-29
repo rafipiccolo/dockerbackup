@@ -1,6 +1,7 @@
-const fs = require('fs');
-const crypto = require('crypto');
-let memoizee = require('memoizee');
+import util from 'util';
+import fs from 'fs';
+import crypto from 'crypto';
+import memoizee from 'memoizee';
 
 let memoizedMd5OnFilename = memoizee(
     (file, callback) => {
@@ -21,7 +22,7 @@ let memoizedMd5OnFilename = memoizee(
     { async: true }
 );
 
-let promisifiedMemoizedMd5OnFilename = require('util').promisify(memoizedMd5OnFilename);
+let promisifiedMemoizedMd5OnFilename = util.promisify(memoizedMd5OnFilename);
 
 promisifiedMemoizedMd5OnFilename('g.js')
     .then(console.log)

@@ -1,11 +1,14 @@
-const express = require('express');
-let monitoring = require('./lib/monitoring.js');
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
+import express from 'express';
+import monitoring from './lib/monitoring.js';
 let app = express();
 app.set('trust proxy', process.env.TRUST_PROXY ?? 1);
-let http = require('http');
+import http from 'http';
 let server = http.Server(app);
 monitoring.gracefulShutdown(server, app);
-const influxdb = require('./lib/influxdb');
+import influxdb from './lib/influxdb.js';
 
 app.get('/favicon.ico', (req, res) => {
     res.sendFile(`${__dirname}/web/img/favicon.png`);
