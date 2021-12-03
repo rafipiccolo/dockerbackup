@@ -81,7 +81,9 @@
         "sonarjs/prefer-immediate-return": 0,
         "sonarjs/no-identical-functions": 0,
         "sonarjs/prefer-object-literal": 0,
-        "no-inner-declarations": 0
+        "no-inner-declarations": 0,
+        "no-process-exit": 0,
+        "node/no-unpublished-import": 0
     },
     "parser": "@babel/eslint-parser",
     "parserOptions": {
