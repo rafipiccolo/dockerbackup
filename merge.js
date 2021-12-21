@@ -49,7 +49,7 @@ du -chs /backup/gextra.net/all/*
 
 // let path = '/backup/ideaz.world/all';
 let path = process.argv[2];
-if (!path) return console.log('please provide a path to check : eg /backup/ideaz.world/all');
+if (!path) throw new Error('please provide a path to check : eg /backup/ideaz.world/all');
 
 let latest = await getLatestDir(path);
 

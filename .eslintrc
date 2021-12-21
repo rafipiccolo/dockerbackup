@@ -2,11 +2,11 @@
     "env": {
         "browser": true,
         "node": true,
-        "es2020": true,
+        "es2021": true,
         "mocha": true
     },
     "plugins": ["sonarjs"],
-    "extends": ["eslint:recommended", "plugin:sonarjs/recommended"],
+    "extends": ["eslint:recommended", "plugin:promise/recommended", "plugin:sonarjs/recommended", "plugin:node/recommended"],
     "rules": {
         "no-undef-init": "error",
         "no-label-var": "error",
@@ -83,7 +83,9 @@
         "sonarjs/prefer-object-literal": 0,
         "no-inner-declarations": 0,
         "no-process-exit": 0,
-        "node/no-unpublished-import": 0
+        "node/no-unpublished-import": 0,
+        "node/no-unsupported-features/es-syntax": 0,
+        "node/no-missing-import": 0
     },
     "parser": "@babel/eslint-parser",
     "parserOptions": {
