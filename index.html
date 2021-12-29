@@ -58,22 +58,26 @@
                             <tbody>
                                 <tr>
                                     <th style={{ width: 100 }}>timestamp</th>
+                                    <th style={{ width: 100 }}>backuphost</th>
                                     <th style={{ width: 100 }}>name</th>
                                     <th style={{ width: 100 }}>driver</th>
+                                    <th style={{ width: 100 }}>db</th>
                                     <th style={{ width: 100 }}>ms</th>
                                     <th style={{ width: 100 }}>size</th>
                                     <th style={{ width: 100 }}>error</th>
                                 </tr>
                                 {backups.map((backup) => (
                                     <tr key={Math.random() + ''}>
-                                        <td>{moment(backup.time).format('YYYY-MM-DD HH:mm:ss.SSS')}</td>
+                                        <td>{moment(backup._time).format('YYYY-MM-DD HH:mm:ss.SSS')}</td>
+                                        <td>{backup.backuphost}</td>
                                         <td>
                                             {backup.host} {backup.db}
                                         </td>
                                         <td>{backup.driver}</td>
+                                        <td>{backup.db}</td>
                                         <td>{backup.ms}</td>
                                         <td>
-                                            {backup.sizeTransfert
+                                            {typeof backup.sizeTransfert != 'undefined'
                                                 ? backup.sizeTransfert +
                                                   ' / ' +
                                                   backup.size +

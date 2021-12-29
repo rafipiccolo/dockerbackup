@@ -1,6 +1,7 @@
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
+import fs from 'fs';
 import express from 'express';
 import monitoring from './lib/monitoring.js';
 let app = express();
@@ -34,16 +35,13 @@ app.get('/stat', async (req, res, next) => {
 
 app.get('/data', async (req, res, next) => {
     try {
-        let sql = `from(bucket: "bucket")
-        |> range(start: -5m)
-        |> filter(fn: (r) => r["_measurement"] == "dockerbackup")
-        ${parseInt(req.query.error) ? '|> filter(fn: (r) => r["_field"] == "error" and r["_value"] == 1)' : ''}
-        ${req.query.driver ? `|> filter(fn: (r) => r["driver"] == "${req.query.driver}")` : ''}
-        |> filter(fn: (r) => r["hostname"] == "${process.env.HOSTNAME}")
-        |> sort(columns:["_time"], desc: true)
-        |> limit(n:1000)`;
-
-        let data = await influxdb.query(sql);
+        let str = await fs.promises.readFile(`${__dirname}/log/log.log`);
+        let data = str.toString().split('\n').filter(s => s).map(s => JSON.parse(s));
+        if (req.query.error)
+            data = data.filter(d => d.error == req.query.error);
+        if (req.query.driver)
+            data = data.filter(d => d.driver == req.query.driver);
+        data = data.reverse();
         res.send(data);
     } catch (err) {
         next(err);

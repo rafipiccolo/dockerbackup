@@ -1,3 +1,7 @@
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 import moment from 'moment';
 import fs from 'fs';
 import path from 'path';
@@ -40,6 +44,33 @@ for (let userhost of userhosts) {
 }
 
 console.log(`all done`);
+
+async function saveStat(stats, e) {
+    stats.now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
+
+    // log stats on terminal
+    let s = `${stats.now} ${stats.driver}@${stats.backuphost}:${stats.name}:${stats.db} ${stats.error ? 'FAIL' : 'OK'}`;
+    if (stats.ms) s += `${stats.ms}ms`;
+    if (stats.size) s += `${stats.size}o`;
+    if (stats.error) console.error(s, e);
+    else console.log(s);
+    
+    // save in file
+    await fs.promises.mkdir(`${__dirname}/log/`, {recursive: true});
+    await fs.promises.appendFile(`${__dirname}/log/log.log`, `${JSON.stringify(stats)}\n`);
+    
+    // save to influx
+    let fields = { error: stats.error };
+    if (typeof stats.ms != 'undefined') fields.ms = stats.ms
+    if (typeof stats.size != 'undefined') fields.size = stats.size
+    if (typeof stats.sizeTransfert != 'undefined') fields.sizeTransfert = stats.sizeTransfert
+        
+    influxdb.insert(
+        'dockerbackup',
+        { backuphost: stats.backuphost, hostname: process.env.HOSTNAME, driver: stats.driver, name: stats.name, db: stats.db },
+        fields
+    );
+}
 
 async function main(user, host, driver, now) {
     try {
@@ -86,15 +117,9 @@ async function main(user, host, driver, now) {
             try {
                 console.log(`${driver}@${host} start`);
                 const res = await rsync(params);
-                console.log(`${driver}@${host} done ${res.ms}ms ${res.size}o`);
-                influxdb.insert(
-                    'dockerbackup',
-                    { backuphost: host, hostname: process.env.HOSTNAME, driver, name: 'all', db: '-' },
-                    { ms: res.ms, size: res.size, sizeTransfert: res.sizeTransfert, error: 0 }
-                );
+                await saveStat({ backuphost: host, driver, ms: res.ms, size: res.size, sizeTransfert: res.sizeTransfert, name: 'all', db: '-', error: 0 });
             } catch (e) {
-                console.error(`${driver}@${host} FAIL`, e);
-                influxdb.insert('dockerbackup', { backuphost: host, hostname: process.env.HOSTNAME, driver, name: 'all', db: '-' }, { error: 1 });
+                await saveStat({ backuphost: host, driver, name: 'all', db: '-', error: 1 }, e);
             }
         }
 
@@ -142,15 +167,9 @@ async function main(user, host, driver, now) {
                 await fs.promises.mkdir(path.dirname(tmpoutput), { recursive: true });
                 const res = await rsync(params);
                 await fs.promises.rename(tmpoutput, realoutput);
-                console.log(`${driver}@${host}:all done ${res.ms}ms ${res.size}o`);
-                influxdb.insert(
-                    'dockerbackup',
-                    { backuphost: host, hostname: process.env.HOSTNAME, driver, name: 'all', db: '-' },
-                    { ms: res.ms, size: res.size, sizeTransfert: res.sizeTransfert, error: 0 }
-                );
+                await saveStat({ backuphost: host, driver, ms: res.ms, size: res.size, sizeTransfert: res.sizeTransfert, name: 'all', db: '-', error: 0 });
             } catch (e) {
-                console.error(`${driver}@${host}:all FAIL`, e);
-                influxdb.insert('dockerbackup', { backuphost: host, hostname: process.env.HOSTNAME, driver, name: 'all', db: '-' }, { error: 1 });
+                await saveStat({ backuphost: host, driver, name: 'all', db: '-', error: 1 }, e);
             }
         }
 
@@ -168,12 +187,7 @@ async function main(user, host, driver, now) {
                             mysqlPassword: container.env.MYSQL_ROOT_PASSWORD || 'root',
                         });
                     } catch (e) {
-                        console.error(`${container.driver}@${host}:${container.name} FAIL`, e);
-                        influxdb.insert(
-                            'dockerbackup',
-                            { backuphost: host, hostname: process.env.HOSTNAME, driver: container.driver, name: container.name, db: '-' },
-                            { error: 1 }
-                        );
+                        await saveStat({ backuphost: host, driver: container.driver, name: container.name, db: '-', error: 1 }, e);
                     }
 
                     // on retire les db ignorées
@@ -202,19 +216,9 @@ async function main(user, host, driver, now) {
                             await fs.promises.mkdir(path.dirname(tmpoutput), { recursive: true });
                             const res = await mysqldump(params);
                             await fs.promises.rename(tmpoutput, realoutput);
-                            console.log(`${container.driver}@${host}:${container.name}:${db} done ${res.ms}ms ${res.size}o`);
-                            influxdb.insert(
-                                'dockerbackup',
-                                { backuphost: host, hostname: process.env.HOSTNAME, driver: container.driver, name: container.name, db },
-                                { ms: res.ms, size: res.size, error: 0 }
-                            );
+                            await saveStat({ backuphost: host, driver: container.driver, name: container.name, db, ms: res.ms, size: res.size, error: 0 });
                         } catch (e) {
-                            console.error(`${container.driver}@${host}:${container.name}:${db} FAIL`, e);
-                            influxdb.insert(
-                                'dockerbackup',
-                                { backuphost: host, hostname: process.env.HOSTNAME, driver: container.driver, name: container.name, db },
-                                { error: 1 }
-                            );
+                            await saveStat({ backuphost: host, driver: container.driver, name: container.name, db, error: 1 }, e);
                         }
                     }
                 } else if (container.driver == 'mongodump') {
@@ -226,12 +230,7 @@ async function main(user, host, driver, now) {
                             docker: container.id,
                         });
                     } catch (e) {
-                        console.error(`${container.driver}@${host}:${container.name} FAIL`, e);
-                        influxdb.insert(
-                            'dockerbackup',
-                            { backuphost: host, hostname: process.env.HOSTNAME, driver: container.driver, name: container.name, db: '-' },
-                            { error: 1 }
-                        );
+                        await saveStat({ backuphost: host, driver: container.driver, name: container.name, db: '-', error: 1 }, e);
                     }
 
                     // on retire les db ignorées
@@ -253,19 +252,9 @@ async function main(user, host, driver, now) {
                             await fs.promises.mkdir(path.dirname(tmpoutput), { recursive: true });
                             const res = await mongodump(params);
                             await fs.promises.rename(tmpoutput, realoutput);
-                            console.log(`${container.driver}@${host}:${container.name}:${db} done ${res.ms}ms ${res.size}o`);
-                            influxdb.insert(
-                                'dockerbackup',
-                                { backuphost: host, hostname: process.env.HOSTNAME, driver: container.driver, name: container.name, db },
-                                { ms: res.ms, size: res.size, error: 0 }
-                            );
+                            await saveStat({ backuphost: host, driver: container.driver, name: container.name, db, ms: res.ms, size: res.size, error: 0 });
                         } catch (e) {
-                            console.error(`${container.driver}@${host}:${container.name}:${db} FAIL`, e);
-                            influxdb.insert(
-                                'dockerbackup',
-                                { backuphost: host, hostname: process.env.HOSTNAME, driver: container.driver, name: container.name, db },
-                                { error: 1 }
-                            );
+                            await saveStat({ backuphost: host, driver: container.driver, name: container.name, db, error: 1 }, e);
                         }
                     }
                 } else {
@@ -274,7 +263,6 @@ async function main(user, host, driver, now) {
             }
         }
     } catch (e) {
-        console.error(e);
-        influxdb.insert('dockerbackup', { backuphost: host, hostname: process.env.HOSTNAME, driver: 'getdocker', name: '-', db: '-' }, { error: 1 });
+        await saveStat({ backuphost: host, driver: 'getDocker', name: '-', db: '-', error: 1 }, e);
     }
 }
