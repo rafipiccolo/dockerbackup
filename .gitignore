@@ -21,3 +21,4 @@ config.js
 *.p12
 *.p8
 .composer/
+.php-cs-fixer.cache
