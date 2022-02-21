@@ -2,5 +2,8 @@
     "*.js": [
         "eslint --fix",
         "prettier --write"
+    ],
+    "*.html.twig": [
+        "/root/.composer/vendor/bin/twig-cs-fixer lint --fix",
     ]
 }

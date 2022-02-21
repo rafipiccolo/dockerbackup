@@ -5,16 +5,32 @@
         "es2021": true,
         "mocha": true
     },
-    "plugins": ["sonarjs"],
-    "extends": ["eslint:recommended", "plugin:promise/recommended", "plugin:sonarjs/recommended", "plugin:node/recommended"],
+    "plugins": [
+        "sonarjs"
+    ],
+    "extends": [
+        "eslint:recommended",
+        "plugin:promise/recommended",
+        "plugin:sonarjs/recommended",
+        "plugin:node/recommended"
+    ],
     "rules": {
         "no-undef-init": "error",
         "no-label-var": "error",
-        "init-declarations": ["error", "always"],
-        "wrap-iife": ["error", "inside"],
+        "init-declarations": [
+            "error",
+            "always"
+        ],
+        "wrap-iife": [
+            "error",
+            "inside"
+        ],
         "yoda": "error",
         "vars-on-top": "error",
-        "radix": ["error", "as-needed"],
+        "radix": [
+            "error",
+            "as-needed"
+        ],
         "prefer-regex-literals": "error",
         "prefer-promise-reject-errors": "error",
         "no-warning-comments": "error",
@@ -48,7 +64,9 @@
         "no-extend-native": [
             "error",
             {
-                "exceptions": ["Object"]
+                "exceptions": [
+                    "Object"
+                ]
             }
         ],
         "no-eval": "error",
@@ -60,7 +78,10 @@
         "no-redeclare": 0,
         "no-useless-escape": 0,
         "no-var": "error",
-        "object-shorthand": ["error", "properties"],
+        "object-shorthand": [
+            "error",
+            "properties"
+        ],
         "prefer-template": "error",
         "no-div-regex": "error",
         "no-constructor-return": "error",
@@ -85,7 +106,8 @@
         "no-process-exit": 0,
         "node/no-unpublished-import": 0,
         "node/no-unsupported-features/es-syntax": 0,
-        "node/no-missing-import": 0
+        "node/no-missing-import": 0,
+        "sonarjs/prefer-single-boolean-return": 0
     },
     "parser": "@babel/eslint-parser",
     "parserOptions": {
