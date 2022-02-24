@@ -54,17 +54,17 @@ async function saveStat(stats, e) {
     if (stats.size) s += `${stats.size}o`;
     if (stats.error) console.error(s, e);
     else console.log(s);
-    
+
     // save in file
-    await fs.promises.mkdir(`${__dirname}/log/`, {recursive: true});
+    await fs.promises.mkdir(`${__dirname}/log/`, { recursive: true });
     await fs.promises.appendFile(`${__dirname}/log/log.log`, `${JSON.stringify(stats)}\n`);
-    
+
     // save to influx
     let fields = { error: stats.error };
-    if (typeof stats.ms != 'undefined') fields.ms = stats.ms
-    if (typeof stats.size != 'undefined') fields.size = stats.size
-    if (typeof stats.sizeTransfert != 'undefined') fields.sizeTransfert = stats.sizeTransfert
-        
+    if (typeof stats.ms != 'undefined') fields.ms = stats.ms;
+    if (typeof stats.size != 'undefined') fields.size = stats.size;
+    if (typeof stats.sizeTransfert != 'undefined') fields.sizeTransfert = stats.sizeTransfert;
+
     influxdb.insert(
         'dockerbackup',
         { backuphost: stats.backuphost, hostname: process.env.HOSTNAME, driver: stats.driver, name: stats.name, db: stats.db },
@@ -119,7 +119,16 @@ async function main(user, host, driver, now) {
             try {
                 console.log(`${driver}@${host} start`);
                 const res = await rsync(params);
-                await saveStat({ backuphost: host, driver, ms: res.ms, size: res.size, sizeTransfert: res.sizeTransfert, name: 'all', db: '-', error: 0 });
+                await saveStat({
+                    backuphost: host,
+                    driver,
+                    ms: res.ms,
+                    size: res.size,
+                    sizeTransfert: res.sizeTransfert,
+                    name: 'all',
+                    db: '-',
+                    error: 0,
+                });
             } catch (e) {
                 await saveStat({ backuphost: host, driver, name: 'all', db: '-', error: 1 }, e);
             }
@@ -171,7 +180,16 @@ async function main(user, host, driver, now) {
                 await fs.promises.mkdir(path.dirname(tmpoutput), { recursive: true });
                 const res = await rsync(params);
                 await fs.promises.rename(tmpoutput, realoutput);
-                await saveStat({ backuphost: host, driver, ms: res.ms, size: res.size, sizeTransfert: res.sizeTransfert, name: 'all', db: '-', error: 0 });
+                await saveStat({
+                    backuphost: host,
+                    driver,
+                    ms: res.ms,
+                    size: res.size,
+                    sizeTransfert: res.sizeTransfert,
+                    name: 'all',
+                    db: '-',
+                    error: 0,
+                });
             } catch (e) {
                 await saveStat({ backuphost: host, driver, name: 'all', db: '-', error: 1 }, e);
             }
@@ -220,7 +238,15 @@ async function main(user, host, driver, now) {
                             await fs.promises.mkdir(path.dirname(tmpoutput), { recursive: true });
                             const res = await mysqldump(params);
                             await fs.promises.rename(tmpoutput, realoutput);
-                            await saveStat({ backuphost: host, driver: container.driver, name: container.name, db, ms: res.ms, size: res.size, error: 0 });
+                            await saveStat({
+                                backuphost: host,
+                                driver: container.driver,
+                                name: container.name,
+                                db,
+                                ms: res.ms,
+                                size: res.size,
+                                error: 0,
+                            });
                         } catch (e) {
                             await saveStat({ backuphost: host, driver: container.driver, name: container.name, db, error: 1 }, e);
                         }
@@ -256,7 +282,15 @@ async function main(user, host, driver, now) {
                             await fs.promises.mkdir(path.dirname(tmpoutput), { recursive: true });
                             const res = await mongodump(params);
                             await fs.promises.rename(tmpoutput, realoutput);
-                            await saveStat({ backuphost: host, driver: container.driver, name: container.name, db, ms: res.ms, size: res.size, error: 0 });
+                            await saveStat({
+                                backuphost: host,
+                                driver: container.driver,
+                                name: container.name,
+                                db,
+                                ms: res.ms,
+                                size: res.size,
+                                error: 0,
+                            });
                         } catch (e) {
                             await saveStat({ backuphost: host, driver: container.driver, name: container.name, db, error: 1 }, e);
                         }

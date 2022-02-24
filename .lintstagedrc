@@ -4,6 +4,10 @@
         "prettier --write"
     ],
     "*.html.twig": [
-        "/root/.composer/vendor/bin/twig-cs-fixer lint --fix",
+        "twig-cs-fixer lint --fix"
+    ],
+    "*.php": [
+        "myphpstan.js",
+        "php-cs-fixer fix"
     ]
 }

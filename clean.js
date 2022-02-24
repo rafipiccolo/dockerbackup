@@ -3,7 +3,7 @@ import path from 'path';
 import util from 'util';
 import glob from 'glob';
 const globPromise = util.promisify(glob);
-import {execFile} from 'child_process';
+import { execFile } from 'child_process';
 
 function execFilePromise(cmd, params) {
     return new Promise((resolve, reject) => {
@@ -59,4 +59,3 @@ for (let dir of dirs3) {
 
     await execFilePromise('rm', ['-rf', dir]);
 }
-

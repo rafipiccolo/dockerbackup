@@ -36,11 +36,13 @@ app.get('/stat', async (req, res, next) => {
 app.get('/data', async (req, res, next) => {
     try {
         let str = await fs.promises.readFile(`${__dirname}/log/log.log`);
-        let data = str.toString().split('\n').filter(s => s).map(s => JSON.parse(s));
-        if (req.query.error)
-            data = data.filter(d => d.error == req.query.error);
-        if (req.query.driver)
-            data = data.filter(d => d.driver == req.query.driver);
+        let data = str
+            .toString()
+            .split('\n')
+            .filter((s) => s)
+            .map((s) => JSON.parse(s));
+        if (req.query.error) data = data.filter((d) => d.error == req.query.error);
+        if (req.query.driver) data = data.filter((d) => d.driver == req.query.driver);
         data = data.reverse();
         res.send(data);
     } catch (err) {
