@@ -31,6 +31,7 @@ const now = moment().format('YYYY-MM-DD--HH');
 
 userhosts = userhosts.split(',');
 drivers = drivers.split(',');
+const hrstart = process.hrtime();
 for (let userhost of userhosts) {
     for (let driver of drivers) {
         let m = userhost.match(/([a-z0-9\.\-]+)@([a-z0-9\.\-]+)/i);
@@ -42,7 +43,9 @@ for (let userhost of userhosts) {
         await main(user, host, driver, now);
     }
 }
-
+const hrend = process.hrtime(hrstart);
+const ms = hrend[0] * 1000 + hrend[1] / 1000000;
+await saveStat({ backuphost: '-', driver: '-', name: '-', db: '-', ms, error: 0 });
 console.log(`all done`);
 
 async function saveStat(stats, e) {
