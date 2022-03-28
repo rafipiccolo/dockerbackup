@@ -5,6 +5,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 import moment from 'moment';
 import fs from 'fs';
 import path from 'path';
+import prettyMs from 'pretty-ms';
+import prettyBytes from 'pretty-bytes';
 import getDockerInspectAll from './lib/getDockerInspectAll.js';
 import parseContainer from './lib/parseContainer.js';
 import verbose from './lib/verbose.js';
@@ -28,7 +30,7 @@ if (process.argv.length > 4 || !userhosts) {
 }
 
 const now = moment().format('YYYY-MM-DD--HH');
-const excludes = [
+const rsyncExcludes = [
     'dockerdata/mysql',
     'dockerdata/mongo',
     'dockerdata/influxdb',
@@ -83,8 +85,8 @@ async function saveStat(stats, e) {
 
     // log stats on terminal
     let s = `${stats.now} ${stats.driver}@${stats.backuphost}:${stats.name}:${stats.db} ${stats.error ? 'FAIL' : 'OK'}`;
-    if (stats.ms) s += `${stats.ms}ms`;
-    if (stats.size) s += `${stats.size}o`;
+    if (stats.ms) s += ` ${prettyMs(stats.ms)}ms`;
+    if (stats.size) s += ` ${prettyBytes(stats.size)}o`;
     if (stats.error) console.error(s, e);
     else console.log(s);
 
@@ -120,7 +122,7 @@ async function main(user, host, driver, now) {
                 user,
                 path: '/root/',
                 output: `/backup/${host}/rsynclive/`,
-                excludes,
+                excludes: rsyncExcludes,
                 dryrun: process.env.DRYRUN || 0,
             };
             try {
@@ -152,7 +154,7 @@ async function main(user, host, driver, now) {
                 path: '/root/',
                 output: tmpoutput,
                 linkdest: linkdest ? `${linkdest}/` : null,
-                excludes,
+                excludes: rsyncExcludes,
                 dryrun: process.env.DRYRUN || 0,
             };
             try {
