@@ -19,6 +19,7 @@
         "long-title": 0,
         "attr-case": 0,
         "no-autoplay": 0,
-        "prefer-tbody": 0
+        "prefer-tbody": 0,
+        "tel-non-breaking": 0
     }
 }
