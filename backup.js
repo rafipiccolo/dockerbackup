@@ -85,8 +85,8 @@ async function saveStat(stats, e) {
 
     // log stats on terminal
     let s = `${stats.now} ${stats.driver}@${stats.backuphost}:${stats.name}:${stats.db} ${stats.error ? 'FAIL' : 'OK'}`;
-    if (stats.ms) s += ` ${prettyMs(stats.ms)}ms`;
-    if (stats.size) s += ` ${prettyBytes(stats.size)}o`;
+    if (stats.ms) s += ` ${prettyMs(stats.ms)}`;
+    if (stats.size) s += ` ${prettyBytes(stats.size)}`;
     if (stats.error) console.error(s, e);
     else console.log(s);
 
