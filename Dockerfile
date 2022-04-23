@@ -3,7 +3,7 @@ FROM ubuntu
 ENV LANG C.UTF-8
 
 RUN apt-get update && \
-    apt-get install -y curl python build-essential rsync openssh-client
+    apt-get install -y curl python2 build-essential rsync openssh-client
 RUN curl -L https://raw.githubusercontent.com/tj/n/master/bin/n -o n && \
     bash n latest && \
     rm -rf n /usr/local/n
