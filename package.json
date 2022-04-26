@@ -1,6 +1,6 @@
 {
     "name": "dockerbackup",
-    "version": "1.0.80",
+    "version": "1.0.81",
     "description": "register backup jobs in docker labels.",
     "main": "server.js",
     "scripts": {
@@ -19,7 +19,7 @@
     "license": "ICS",
     "dependencies": {
         "@influxdata/influxdb-client": "^1.25.0",
-        "express": "^4.17.3",
+        "express": "^4.18.0",
         "glob": "^8.0.1",
         "inquirer": "^8.2.2",
         "memoizee": "^0.4.15",
@@ -36,7 +36,7 @@
         "eslint-plugin-node": "^11.1.0",
         "eslint-plugin-promise": "^6.0.0",
         "eslint-plugin-sonarjs": "^0.13.0",
-        "html-validate": "^6.7.1",
+        "html-validate": "^6.8.0",
         "husky": "^7.0.4",
         "lint-staged": "^12.4.0",
         "prettier": "^2.6.2"
