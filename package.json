@@ -1,6 +1,6 @@
 {
     "name": "dockerbackup",
-    "version": "1.0.83",
+    "version": "1.0.84",
     "description": "register backup jobs in docker labels.",
     "main": "server.js",
     "scripts": {
@@ -36,7 +36,7 @@
         "eslint-plugin-node": "^11.1.0",
         "eslint-plugin-promise": "^6.0.0",
         "eslint-plugin-sonarjs": "^0.13.0",
-        "html-validate": "^6.9.1",
+        "html-validate": "^6.10.0",
         "husky": "^7.0.4",
         "lint-staged": "^12.4.1",
         "prettier": "^2.6.2"
