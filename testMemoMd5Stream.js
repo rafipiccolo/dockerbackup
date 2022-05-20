@@ -3,12 +3,12 @@ import fs from 'fs';
 import crypto from 'crypto';
 import memoizee from 'memoizee';
 
-let memoizedMd5OnFilename = memoizee(
+const memoizedMd5OnFilename = memoizee(
     (file, callback) => {
         // return crypto.createHash('md5').update(fs.readFileSync(oldfile)).digest("hex")
 
-        let s = fs.createReadStream(file);
-        let hash = crypto.createHash('md5');
+        const s = fs.createReadStream(file);
+        const hash = crypto.createHash('md5');
         s.on('data', (data) => {
             hash.update(data);
         });
@@ -22,7 +22,7 @@ let memoizedMd5OnFilename = memoizee(
     { async: true }
 );
 
-let promisifiedMemoizedMd5OnFilename = util.promisify(memoizedMd5OnFilename);
+const promisifiedMemoizedMd5OnFilename = util.promisify(memoizedMd5OnFilename);
 
 promisifiedMemoizedMd5OnFilename('g.js')
     .then(console.log)

@@ -87,7 +87,8 @@
         "node/no-unpublished-import": 0,
         "node/no-unsupported-features/es-syntax": 0,
         "node/no-missing-import": 0,
-        "sonarjs/prefer-single-boolean-return": 0
+        "sonarjs/prefer-single-boolean-return": 0,
+        "prefer-const": ["error", { "destructuring": "all" }]
     },
     "parser": "@babel/eslint-parser",
     "parserOptions": {

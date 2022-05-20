@@ -10,8 +10,8 @@ import rsync from './lib/rsync.js';
 let remoteUser = process.argv[2];
 let remoteHost = process.argv[3];
 let remoteContainer = process.argv[4];
-let paths = [];
-for (let i in process.argv) {
+const paths = [];
+for (const i in process.argv) {
     if (i < 5) continue;
     paths.push(process.argv[i]);
 }
@@ -34,10 +34,10 @@ if (!remoteHost) {
 }
 
 // ask for the remote Container
-let containers = await getDockerInspect({ user: remoteUser, host: remoteHost });
+const containers = await getDockerInspect({ user: remoteUser, host: remoteHost });
 
 if (!remoteContainer) {
-    let containerNames = containers.map((c) => c.name);
+    const containerNames = containers.map((c) => c.name);
     remoteContainer = await askList(containerNames, 'Destination container ?');
 }
 
@@ -49,27 +49,27 @@ if (paths.length == 0) {
     let path = '/backup';
 
     {
-        let files = await fs.promises.readdir(path);
+        const files = await fs.promises.readdir(path);
         files.filter((file) => file != '/backup/.tmp');
-        let server = await ask(files, 'Server ?');
+        const server = await ask(files, 'Server ?');
         path += `/${server}`;
     }
 
     {
-        let files = await fs.promises.readdir(path);
-        let container = await ask(files, 'Container ?');
+        const files = await fs.promises.readdir(path);
+        const container = await ask(files, 'Container ?');
         path += `/${container}`;
     }
 
     {
-        let files = await fs.promises.readdir(path);
-        let driver = await ask(files, 'Driver ?');
+        const files = await fs.promises.readdir(path);
+        const driver = await ask(files, 'Driver ?');
         path += `/${driver}`;
     }
 
     {
-        let files = await fs.promises.readdir(path);
-        let time = await ask(files, 'time ?');
+        const files = await fs.promises.readdir(path);
+        const time = await ask(files, 'time ?');
         path += `/${time}`;
     }
 
@@ -77,19 +77,19 @@ if (paths.length == 0) {
 }
 
 // we restore every path
-for (let path of paths) await restore({ path, remoteHost, remoteContainer });
+for (const path of paths) await restore({ path, remoteHost, remoteContainer });
 
 console.log('Done');
 
 async function restore(options) {
-    let m = options.path.match(/\/backup\/([0-9a-zA-z_\-\.]+)\/([0-9a-zA-z_\-\.]+)\/([0-9a-zA-z_\-\.]+)\/([0-9a-zA-z_\-\.]+)/);
+    const m = options.path.match(/\/backup\/([0-9a-zA-z_\-\.]+)\/([0-9a-zA-z_\-\.]+)\/([0-9a-zA-z_\-\.]+)\/([0-9a-zA-z_\-\.]+)/);
 
     if (!m) throw new Error('bad path');
-    let [_, server, container, driver, time] = m;
+    const [_, server, container, driver, time] = m;
 
     if (driver == 'rsync') {
         if ((await fs.promises.stat(options.path)).isDirectory() && options.path[options.path.length - 1] != '/') options.path = `${options.path}/`;
-        let file = options.path.replace(`/backup/${server}/${driver}/${time}/`, '');
+        const file = options.path.replace(`/backup/${server}/${driver}/${time}/`, '');
         const params = {
             host: options.remoteHost,
             user: options.remoteUser,
@@ -100,10 +100,10 @@ async function restore(options) {
         const res = await rsync(params);
         console.log(`${container.driver}@${container.name} done ${res.ms}ms ${res.size}o`);
     } else if (driver == 'mysqldump') {
-        let m = options.path.match(/([0-9a-zA-z_\-\.]+)\.sql\.gz$/);
+        const m = options.path.match(/([0-9a-zA-z_\-\.]+)\.sql\.gz$/);
         let database = '';
         if (!m) {
-            let files = await fs.promises.readdir(options.path);
+            const files = await fs.promises.readdir(options.path);
             database = await ask(files, 'Database ?');
             options.path += `/${database}`;
             database = database.replace('.sql.gz', '');
@@ -116,10 +116,10 @@ async function restore(options) {
             `cat ${options.path} | gunzip | ssh ${options.remoteHost} 'docker exec -i ${options.remoteContainer.name} mysql -u root -p${options.remoteContainer.env.MYSQL_ROOT_PASSWORD} ${database}'`
         );
     } else if (driver == 'mongodump') {
-        let m = options.path.match(/([0-9a-zA-z_\-\.]+)\.archive$/);
+        const m = options.path.match(/([0-9a-zA-z_\-\.]+)\.archive$/);
         let database = '';
         if (!m) {
-            let files = await fs.promises.readdir(options.path);
+            const files = await fs.promises.readdir(options.path);
             database = await ask(files, 'Database ?');
             options.path += `/${database}`;
             database = database.replace('.archive', '');
@@ -134,7 +134,7 @@ async function restore(options) {
 }
 
 async function ask(files, question) {
-    let params = [
+    const params = [
         {
             type: 'list',
             name: 'answer',
@@ -142,24 +142,24 @@ async function ask(files, question) {
             choices: files,
         },
     ];
-    let answer = await inquirer.prompt(params);
+    const answer = await inquirer.prompt(params);
     return answer.answer;
 }
 
 async function askText(question) {
-    let params = [
+    const params = [
         {
             type: 'input',
             name: 'answer',
             message: question,
         },
     ];
-    let answer = await inquirer.prompt(params);
+    const answer = await inquirer.prompt(params);
     return answer.answer;
 }
 
 async function askList(choices, question) {
-    let params = [
+    const params = [
         {
             type: 'list',
             name: 'answer',
@@ -167,7 +167,7 @@ async function askList(choices, question) {
             message: question,
         },
     ];
-    let answer = await inquirer.prompt(params);
+    const answer = await inquirer.prompt(params);
     return answer.answer;
 }
 

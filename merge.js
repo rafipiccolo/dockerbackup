@@ -6,12 +6,12 @@ import crypto from 'crypto';
 import getLatestDir from './lib/getLatestDir.js';
 import memoizee from 'memoizee';
 
-let memoizedMd5OnFilename = memoizee(
+const memoizedMd5OnFilename = memoizee(
     (file, callback) => {
         // return crypto.createHash('md5').update(fs.readFileSync(oldfile)).digest("hex")
 
-        let s = fs.createReadStream(file);
-        let hash = crypto.createHash('md5');
+        const s = fs.createReadStream(file);
+        const hash = crypto.createHash('md5');
         s.on('data', (data) => {
             hash.update(data);
         });
@@ -25,7 +25,7 @@ let memoizedMd5OnFilename = memoizee(
     { async: true }
 );
 
-let promisifiedMemoizedMd5OnFilename = util.promisify(memoizedMd5OnFilename);
+const promisifiedMemoizedMd5OnFilename = util.promisify(memoizedMd5OnFilename);
 
 /*
 node merge.js /backup/ideaz.world/all
@@ -48,15 +48,15 @@ du -chs /backup/gextra.net/all/*
 */
 
 // let path = '/backup/ideaz.world/all';
-let path = process.argv[2];
+const path = process.argv[2];
 if (!path) throw new Error('please provide a path to check : eg /backup/ideaz.world/all');
 
-let latest = await getLatestDir(path);
+const latest = await getLatestDir(path);
 
-let globpath = `${latest}/**`;
-let oldspath = `${path}/*/`;
+const globpath = `${latest}/**`;
+const oldspath = `${path}/*/`;
 
-let files = await globPromise(globpath, { nodir: true });
+const files = await globPromise(globpath, { nodir: true });
 
 console.log(`found ${files.length} files`);
 
@@ -64,16 +64,16 @@ let olddirs = await globPromise(oldspath);
 olddirs = olddirs.map((d) => d.replace(/\/$/, ''));
 olddirs.sort((a, b) => b.localeCompare(a));
 
-for (let i in files) {
-    let file = files[i];
+for (const i in files) {
+    const file = files[i];
     console.log(`${i}/${files.length} files`);
 
-    let smallpath = file.replace(`${latest}/`, '');
+    const smallpath = file.replace(`${latest}/`, '');
 
-    for (let olddir of olddirs) {
+    for (const olddir of olddirs) {
         if (olddir == latest) continue;
 
-        let oldfile = `${olddir}/${smallpath}`;
+        const oldfile = `${olddir}/${smallpath}`;
 
         let oldstat = null;
         try {
@@ -83,7 +83,7 @@ for (let i in files) {
             continue;
         }
 
-        let filestat = await fs.promises.stat(file);
+        const filestat = await fs.promises.stat(file);
 
         if (oldstat.ino == filestat.ino) {
             // console.log(oldfile, file, 'already merged');
@@ -95,8 +95,8 @@ for (let i in files) {
             continue;
         }
 
-        let oldhash = await promisifiedMemoizedMd5OnFilename(oldfile);
-        let filehash = await promisifiedMemoizedMd5OnFilename(file);
+        const oldhash = await promisifiedMemoizedMd5OnFilename(oldfile);
+        const filehash = await promisifiedMemoizedMd5OnFilename(file);
 
         if (oldhash != filehash) {
             // console.log(oldfile, file, 'md5 differ');

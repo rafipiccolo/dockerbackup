@@ -64,9 +64,9 @@ const rsyncExcludes = [
 userhosts = userhosts.split(',');
 drivers = drivers.split(',');
 const hrstart = process.hrtime();
-for (let userhost of userhosts) {
-    for (let driver of drivers) {
-        let m = userhost.match(/([a-z0-9\.\-]+)@([a-z0-9\.\-]+)/i);
+for (const userhost of userhosts) {
+    for (const driver of drivers) {
+        const m = userhost.match(/([a-z0-9\.\-]+)@([a-z0-9\.\-]+)/i);
         if (!m) {
             console.error('please specify a user@hostname (separated by ",")');
             process.exit(1);
@@ -95,7 +95,7 @@ async function saveStat(stats, e) {
     await fs.promises.appendFile(`${__dirname}/log/log.log`, `${JSON.stringify(stats)}\n`);
 
     // save to influx
-    let fields = { error: stats.error };
+    const fields = { error: stats.error };
     if (typeof stats.ms != 'undefined') fields.ms = stats.ms;
     if (typeof stats.size != 'undefined') fields.size = stats.size;
     if (typeof stats.sizeTransfert != 'undefined') fields.sizeTransfert = stats.sizeTransfert;
@@ -145,9 +145,9 @@ async function main(user, host, driver, now) {
 
         // incremental backup using rsync
         if (driver == 'rsync') {
-            let linkdest = await getLatestDir(`/backup/${host}/all/`);
-            let realoutput = `/backup/${host}/all/${now}/`;
-            let tmpoutput = `/backup/.tmp/${host}.all.${now}/`;
+            const linkdest = await getLatestDir(`/backup/${host}/all/`);
+            const realoutput = `/backup/${host}/all/${now}/`;
+            const tmpoutput = `/backup/.tmp/${host}.all.${now}/`;
             const params = {
                 host,
                 user,
@@ -197,12 +197,12 @@ async function main(user, host, driver, now) {
 
                     // on retire les db ignorées
                     container.ignore = container.ignore || [];
-                    let ignoreTables = container.ignore.filter((ignore) => ignore.includes('.'));
+                    const ignoreTables = container.ignore.filter((ignore) => ignore.includes('.'));
                     dbs = dbs.filter((db) => !container.ignore.includes(db));
 
-                    for (let db of dbs) {
-                        let realoutput = `/backup/${host}/${container.name}/mysqldump/${now}/${db}.sql.gz`;
-                        let tmpoutput = `/backup/.tmp/${host}.${container.name}.mysqldump.${now}.${db}.sql.gz`;
+                    for (const db of dbs) {
+                        const realoutput = `/backup/${host}/${container.name}/mysqldump/${now}/${db}.sql.gz`;
+                        const tmpoutput = `/backup/.tmp/${host}.${container.name}.mysqldump.${now}.${db}.sql.gz`;
 
                         const params = {
                             host,
@@ -248,9 +248,9 @@ async function main(user, host, driver, now) {
 
                     // on retire les db ignorées
                     container.ignore = container.ignore || [];
-                    for (let db of dbs) {
-                        let realoutput = `/backup/${host}/${container.name}/mysqldump/${now}/${db}.archive`;
-                        let tmpoutput = `/backup/.tmp/${host}.${container.name}.mysqldump.${now}.${db}.archive`;
+                    for (const db of dbs) {
+                        const realoutput = `/backup/${host}/${container.name}/mysqldump/${now}/${db}.archive`;
+                        const tmpoutput = `/backup/.tmp/${host}.${container.name}.mysqldump.${now}.${db}.archive`;
 
                         const params = {
                             host,

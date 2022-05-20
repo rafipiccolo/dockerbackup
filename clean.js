@@ -17,16 +17,16 @@ function execFilePromise(cmd, params) {
 }
 
 // vide les vieux backups
-let dirs1 = await globPromise('/backup/*/all/*');
-let dirs2 = await globPromise('/backup/*/mysql/mysqldump/*');
-let dirs = [...dirs1, ...dirs2];
+const dirs1 = await globPromise('/backup/*/all/*');
+const dirs2 = await globPromise('/backup/*/mysql/mysqldump/*');
+const dirs = [...dirs1, ...dirs2];
 
-for (let dir of dirs) {
-    let basename = path.basename(dir);
-    let m = basename.match(/^(\d+)-(\d+)-(\d+)--(\d+)/);
+for (const dir of dirs) {
+    const basename = path.basename(dir);
+    const m = basename.match(/^(\d+)-(\d+)-(\d+)--(\d+)/);
     if (!m) continue;
 
-    let date = new Date(`${m[1]}-${m[2]}-${m[3]} ${m[4]}:00`);
+    const date = new Date(`${m[1]}-${m[2]}-${m[3]} ${m[4]}:00`);
 
     // if sql
     if (dirs2.includes(dir)) {
@@ -53,8 +53,8 @@ for (let dir of dirs) {
 }
 
 // vide .tmp car si on lance clean c'est qu'on a fini de backuper
-let dirs3 = await globPromise('/backup/.tmp/*');
-for (let dir of dirs3) {
+const dirs3 = await globPromise('/backup/.tmp/*');
+for (const dir of dirs3) {
     console.log('deleting old failed backup', dir);
 
     await execFilePromise('rm', ['-rf', dir]);

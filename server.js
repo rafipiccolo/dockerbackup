@@ -4,10 +4,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 import fs from 'fs';
 import express from 'express';
 import monitoring from './lib/monitoring.js';
-let app = express();
+const app = express();
 app.set('trust proxy', process.env.TRUST_PROXY ?? 1);
 import http from 'http';
-let server = http.Server(app);
+const server = http.Server(app);
 monitoring.gracefulShutdown(server, app);
 import influxdb from './lib/influxdb.js';
 
@@ -35,7 +35,7 @@ app.get('/stat', async (req, res, next) => {
 
 app.get('/data', async (req, res, next) => {
     try {
-        let str = await fs.promises.readFile(`${__dirname}/log/log.log`);
+        const str = await fs.promises.readFile(`${__dirname}/log/log.log`);
         let data = str
             .toString()
             .split('\n')
