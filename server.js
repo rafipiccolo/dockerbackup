@@ -9,12 +9,8 @@ app.set('trust proxy', process.env.TRUST_PROXY ?? 1);
 import http from 'http';
 const server = http.Server(app);
 monitoring.gracefulShutdown(server, app);
-import influxdb from './lib/influxdb.js';
 
-app.get('/favicon.ico', (req, res) => {
-    res.sendFile(`${__dirname}/web/img/favicon.png`);
-});
-
+app.use(monitoring.faviconmiddleware(app));
 app.use(monitoring.banmiddleware(app));
 app.use(monitoring.idmiddleware);
 app.use(monitoring.statmiddleware);
