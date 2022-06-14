@@ -10,7 +10,8 @@
         "prettier --write"
     ],
     "*.html.twig": [
-        "twig-cs-fixer lint --fix"
+        "twig-cs-fixer lint --fix",
+        "myhtmlvalidate -q"
     ],
     "*.php": [
         "myphpstan.js",
