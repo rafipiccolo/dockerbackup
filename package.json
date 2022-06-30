@@ -1,6 +1,6 @@
 {
     "name": "dockerbackup",
-    "version": "1.0.110",
+    "version": "1.0.111",
     "description": "register backup jobs in docker labels.",
     "main": "server.js",
     "scripts": {
