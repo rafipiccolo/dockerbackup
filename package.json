@@ -1,6 +1,6 @@
 {
     "name": "dockerbackup",
-    "version": "1.0.115",
+    "version": "1.0.116",
     "description": "register backup jobs in docker labels.",
     "main": "server.js",
     "scripts": {
@@ -22,7 +22,7 @@
         "express": "^4.18.1",
         "glob": "^8.0.3",
         "memoizee": "^0.4.15",
-        "moment": "^2.29.3",
+        "moment": "^2.29.4",
         "pretty-bytes": "^6.0.0",
         "pretty-ms": "^8.0.0",
         "request": "^2.88.2",
