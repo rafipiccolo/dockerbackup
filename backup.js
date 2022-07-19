@@ -22,7 +22,7 @@ import influxdb from './lib/influxdb.js';
 
 let userhosts = process.argv[2];
 let drivers = process.argv[3];
-if (!drivers) drivers = 'rsync,rsynclive,mysqldump,mongodump';
+if (!drivers) drivers = 'rsync,rsynclive,mysqldump,mongodump,gitea';
 
 if (process.argv.length > 4 || !userhosts) {
     console.error('please specify some user@hostname (separated by ",") and optionally some drivers (mysqldump/mongodump/rsync separated by ",")');
@@ -117,15 +117,15 @@ async function main(user, host, driver, now) {
 
         // rsync in append only
         if (driver == 'rsynclive') {
-            const params = {
-                host,
-                user,
-                path: '/root/',
-                output: `/backup/${host}/rsynclive/`,
-                excludes: rsyncExcludes,
-                dryrun: process.env.DRYRUN || 0,
-            };
             try {
+                const params = {
+                    host,
+                    user,
+                    path: '/root/',
+                    output: `/backup/${host}/rsynclive/`,
+                    excludes: rsyncExcludes,
+                    dryrun: process.env.DRYRUN || 0,
+                };
                 console.log(`${driver}@${host} start`);
                 const res = await rsync(params);
                 await saveStat({
@@ -143,21 +143,56 @@ async function main(user, host, driver, now) {
             }
         }
 
+        // // incremental backup using rsync
+        // if (driver == 'gitea') {
+        //     try {
+        //         const linkdest = await getLatestDir(`/backup/${host}/gitea/`);
+        //         const realoutput = `/backup/${host}/gitea/${now}/`;
+        //         const tmpoutput = `/backup/.tmp/${host}.gitea.${now}/`;
+        //         const params = {
+        //             host,
+        //             user,
+        //             path: '/root/docker/gitea/',
+        //             output: tmpoutput,
+        //             linkdest: linkdest ? `${linkdest}/` : null,
+        //             excludes: rsyncExcludes,
+        //             dryrun: process.env.DRYRUN || 0,
+        //         };
+        //         console.log(`${driver}@${host} start`);
+        //         await fs.promises.mkdir(path.dirname(realoutput), { recursive: true });
+        //         await fs.promises.mkdir(path.dirname(tmpoutput), { recursive: true });
+        //         const res = await rsync(params);
+        //         await fs.promises.rename(tmpoutput, realoutput);
+        //         await saveStat({
+        //             backuphost: host,
+        //             driver,
+        //             ms: res.ms,
+        //             size: res.size,
+        //             sizeTransfert: res.sizeTransfert,
+        //             name: 'gitea',
+        //             db: '-',
+        //             error: 0,
+        //         });
+        //     } catch (e) {
+        //         await saveStat({ backuphost: host, driver, name: 'gitea', db: '-', error: 1 }, e);
+        //     }
+        // }
+
         // incremental backup using rsync
         if (driver == 'rsync') {
-            const linkdest = await getLatestDir(`/backup/${host}/all/`);
-            const realoutput = `/backup/${host}/all/${now}/`;
-            const tmpoutput = `/backup/.tmp/${host}.all.${now}/`;
-            const params = {
-                host,
-                user,
-                path: '/root/',
-                output: tmpoutput,
-                linkdest: linkdest ? `${linkdest}/` : null,
-                excludes: rsyncExcludes,
-                dryrun: process.env.DRYRUN || 0,
-            };
             try {
+                const linkdest = await getLatestDir(`/backup/${host}/all/`);
+                const realoutput = `/backup/${host}/all/${now}/`;
+                const tmpoutput = `/backup/.tmp/${host}.all.${now}/`;
+                const params = {
+                    host,
+                    user,
+                    path: '/root/',
+                    output: tmpoutput,
+                    linkdest: linkdest ? `${linkdest}/` : null,
+                    excludes: rsyncExcludes,
+                    dryrun: process.env.DRYRUN || 0,
+                };
                 console.log(`${driver}@${host} start`);
                 await fs.promises.mkdir(path.dirname(realoutput), { recursive: true });
                 await fs.promises.mkdir(path.dirname(tmpoutput), { recursive: true });
@@ -201,21 +236,21 @@ async function main(user, host, driver, now) {
                     dbs = dbs.filter((db) => !container.ignore.includes(db));
 
                     for (const db of dbs) {
-                        const realoutput = `/backup/${host}/${container.name}/mysqldump/${now}/${db}.sql.gz`;
-                        const tmpoutput = `/backup/.tmp/${host}.${container.name}.mysqldump.${now}.${db}.sql.gz`;
-
-                        const params = {
-                            host,
-                            user,
-                            docker: container.id,
-                            mysqlUser: 'root',
-                            mysqlPassword: container.env.MYSQL_ROOT_PASSWORD || 'root',
-                            dryrun: process.env.DRYRUN || 0,
-                            db,
-                            output: tmpoutput,
-                            ignoreTables,
-                        };
                         try {
+                            const realoutput = `/backup/${host}/${container.name}/mysqldump/${now}/${db}.sql.gz`;
+                            const tmpoutput = `/backup/.tmp/${host}.${container.name}.mysqldump.${now}.${db}.sql.gz`;
+
+                            const params = {
+                                host,
+                                user,
+                                docker: container.id,
+                                mysqlUser: 'root',
+                                mysqlPassword: container.env.MYSQL_ROOT_PASSWORD || 'root',
+                                dryrun: process.env.DRYRUN || 0,
+                                db,
+                                output: tmpoutput,
+                                ignoreTables,
+                            };
                             console.log(`${driver}@${host} start`);
                             await fs.promises.mkdir(path.dirname(realoutput), { recursive: true });
                             await fs.promises.mkdir(path.dirname(tmpoutput), { recursive: true });
@@ -249,18 +284,18 @@ async function main(user, host, driver, now) {
                     // on retire les db ignorées
                     container.ignore = container.ignore || [];
                     for (const db of dbs) {
-                        const realoutput = `/backup/${host}/${container.name}/mysqldump/${now}/${db}.archive`;
-                        const tmpoutput = `/backup/.tmp/${host}.${container.name}.mysqldump.${now}.${db}.archive`;
-
-                        const params = {
-                            host,
-                            user,
-                            docker: container.id,
-                            dryrun: process.env.DRYRUN || 0,
-                            db,
-                            output: tmpoutput,
-                        };
                         try {
+                            const realoutput = `/backup/${host}/${container.name}/mysqldump/${now}/${db}.archive`;
+                            const tmpoutput = `/backup/.tmp/${host}.${container.name}.mysqldump.${now}.${db}.archive`;
+
+                            const params = {
+                                host,
+                                user,
+                                docker: container.id,
+                                dryrun: process.env.DRYRUN || 0,
+                                db,
+                                output: tmpoutput,
+                            };
                             await fs.promises.mkdir(path.dirname(realoutput), { recursive: true });
                             await fs.promises.mkdir(path.dirname(tmpoutput), { recursive: true });
                             const res = await mongodump(params);
