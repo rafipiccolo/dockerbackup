@@ -9,6 +9,7 @@
         "wcag/h37": 0,
         "wcag/h32": 0,
         "element-required-attributes": 0,
+        "element-required-ancestor": 0,
         "prefer-button": 0,
         "attr-spacing": 0,
         "element-permitted-content": 0,
