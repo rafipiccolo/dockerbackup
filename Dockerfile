@@ -1,4 +1,4 @@
-FROM ubuntu:latest@sha256:2ec38e3c5c9e889445516d2b044d061c23dc23d321e4e1508957997f4001dc1d
+FROM ubuntu:latest@sha256:7cfe75438fc77c9d7235ae502bf229b15ca86647ac01c844b272b56326d56184
 
 ENV LANG C.UTF-8
 
@@ -9,7 +9,6 @@ RUN apt-get update && \
 RUN curl -L https://raw.githubusercontent.com/tj/n/master/bin/n -o n && \
     bash n latest && \
     rm -rf n /usr/local/n
-RUN npm install -g nodemon
 
 WORKDIR /usr/app
 EXPOSE 3000
