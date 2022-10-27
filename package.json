@@ -1,6 +1,6 @@
 {
     "name": "dockerbackup",
-    "version": "1.0.193",
+    "version": "1.0.194",
     "description": "register backup jobs in docker labels.",
     "main": "server.js",
     "scripts": {
@@ -24,7 +24,6 @@
         "memoizee": "^0.4.15",
         "moment": "^2.29.4",
         "node-fetch": "^3.2.10",
-        "nodemon": "^2.0.20",
         "pretty-bytes": "^6.0.0",
         "pretty-ms": "^8.0.0",
         "shell-escape": "^0.2.0",
@@ -39,6 +38,7 @@
         "html-validate": "^7.7.1",
         "husky": "^8.0.1",
         "lint-staged": "^13.0.3",
+        "nodemon": "^2.0.20",
         "prettier": "^2.7.1"
     },
     "type": "module",
