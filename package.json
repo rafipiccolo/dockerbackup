@@ -1,6 +1,6 @@
 {
     "name": "dockerbackup",
-    "version": "1.0.195",
+    "version": "1.0.196",
     "description": "register backup jobs in docker labels.",
     "main": "server.js",
     "scripts": {
@@ -18,7 +18,7 @@
     "homepage": "https://github.com/rafipiccolo/dockerbackup#readme",
     "license": "ICS",
     "dependencies": {
-        "@influxdata/influxdb-client": "^1.31.0",
+        "@influxdata/influxdb-client": "^1.32.0",
         "express": "^4.18.2",
         "glob": "^8.0.3",
         "memoizee": "^0.4.15",
