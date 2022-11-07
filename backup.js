@@ -1,10 +1,9 @@
-import { dirname } from 'path';
+import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 import moment from 'moment';
 import fs from 'fs';
-import path from 'path';
 import prettyMs from 'pretty-ms';
 import prettyBytes from 'pretty-bytes';
 import getDockerInspectAll from './lib/getDockerInspectAll.js';
@@ -231,7 +230,7 @@ async function main(user, host, driver, now) {
                     }
 
                     // on retire les db ignorées
-                    container.ignore = container.ignore || [];
+                    container.ignore ||= [];
                     const ignoreTables = container.ignore.filter((ignore) => ignore.includes('.'));
                     dbs = dbs.filter((db) => !container.ignore.includes(db));
 
@@ -282,7 +281,7 @@ async function main(user, host, driver, now) {
                     }
 
                     // on retire les db ignorées
-                    container.ignore = container.ignore || [];
+                    container.ignore ||= [];
                     for (const db of dbs) {
                         try {
                             const realoutput = `/backup/${host}/${container.name}/mysqldump/${now}/${db}.archive`;

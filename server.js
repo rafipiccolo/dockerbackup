@@ -1,6 +1,6 @@
-import { dirname } from 'path';
+import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 import fs from 'fs';
 import express from 'express';
 import monitoring from './lib/monitoring.js';
