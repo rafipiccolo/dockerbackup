@@ -2,6 +2,7 @@
     "extends": ["html-validate:recommended"],
     "rules": {
         "no-inline-style": 0,
+        "wcag/h63": 0,
         "wcag/h30": 0,
         "void-style": [0, { "style": "selfclosing" }],
         "no-raw-characters": 0,

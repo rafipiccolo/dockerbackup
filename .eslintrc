@@ -8,6 +8,8 @@
     "plugins": ["sonarjs"],
     "extends": ["eslint:recommended", "plugin:promise/recommended", "plugin:sonarjs/recommended", "plugin:node/recommended"],
     "rules": {
+        "no-new-native-nonconstructor": "error",
+        "no-empty-static-block": "error",
         "symbol-description": "error",
         "require-yield": "error",
         "prefer-spread": "error",
