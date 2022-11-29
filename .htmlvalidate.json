@@ -1,6 +1,7 @@
 {
     "extends": ["html-validate:recommended"],
     "rules": {
+        "no-dup-id": 0,
         "no-inline-style": 0,
         "wcag/h63": 0,
         "wcag/h30": 0,
