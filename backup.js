@@ -75,7 +75,7 @@ for (const userhost of userhosts) {
     }
 }
 const hrend = process.hrtime(hrstart);
-const ms = hrend[0] * 1000 + hrend[1] / 1000000;
+const ms = hrend[0] * 1000 + hrend[1] / 1_000_000;
 await saveStat({ backuphost: '-', driver: '-', name: '-', db: '-', ms, error: 0 });
 console.log(`all done`);
 
@@ -95,9 +95,9 @@ async function saveStat(stats, e) {
 
     // save to influx
     const fields = { error: stats.error };
-    if (typeof stats.ms != 'undefined') fields.ms = stats.ms;
-    if (typeof stats.size != 'undefined') fields.size = stats.size;
-    if (typeof stats.sizeTransfert != 'undefined') fields.sizeTransfert = stats.sizeTransfert;
+    if (stats.ms !== undefined) fields.ms = stats.ms;
+    if (stats.size !== undefined) fields.size = stats.size;
+    if (stats.sizeTransfert !== undefined) fields.sizeTransfert = stats.sizeTransfert;
 
     influxdb.insert(
         'dockerbackup',
@@ -110,7 +110,7 @@ async function main(user, host, driver, now) {
     try {
         // get and parse labels from remote docker
         let containers = await getDockerInspectAll({ user, host });
-        containers = containers.map(parseContainer).filter((container) => container);
+        containers = containers.map((container) => parseContainer(container)).filter((container) => container);
 
         verbose(`found ${containers.length} backup jobs`);
 
