@@ -39,6 +39,7 @@ const rsyncExcludes = [
     'dockerlog/',
     'node_modules/',
     'docker/mysql/data',
+    'docker/redis',
     'docker/mongo',
     'docker/influxdb',
     'docker/loki/data',
