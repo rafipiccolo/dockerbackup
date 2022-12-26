@@ -143,7 +143,7 @@ async function main(user, host, driver, now) {
             }
         }
 
-        // // incremental backup using rsync
+        // // gitea backup using rsync
         // if (driver == 'gitea') {
         //     try {
         //         const linkdest = await getLatestDir(`/backup/${host}/gitea/`);
