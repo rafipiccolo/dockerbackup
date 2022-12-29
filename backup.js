@@ -53,6 +53,9 @@ const rsyncExcludes = [
     '.npm/',
     '.cache/',
     '.vscode-server-insiders',
+    '.vscode-server',
+    '.vscode',
+    '.config',
     'log/',
     'logs/',
     '*.log',
@@ -207,7 +210,6 @@ async function main(user, host, driver, now) {
                     name: 'all',
                     db: '-',
                     error: 0,
-                    initialExitCode: res.initialExitCode,
                 });
             } catch (e) {
                 await saveStat({ backuphost: host, driver, name: 'all', db: '-', error: 1 }, e);
