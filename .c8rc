@@ -1,0 +1,8 @@
+{
+    "temp-directory": "./coverage/.nyc_output",
+    "report-dir": "./coverage/",
+    "reporter": ["html", "text", "json-summary"],
+    "all": true,
+    "include": ["*.js", "lib/**/*.js", "controller/**/*.js"],
+    "exclude": ["log", "node_modules", "translations", "views", "web", "**/test.js", "**/*.test.js", "coverage"]
+}

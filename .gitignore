@@ -23,3 +23,4 @@ config.js
 .composer/
 .php-cs-fixer.cache
 .twig-cs-fixer.cache
+coverage/

@@ -1,11 +1,13 @@
 {
     "name": "dockerbackup",
-    "version": "1.0.233",
+    "version": "1.0.234",
     "description": "register backup jobs in docker labels.",
     "main": "server.js",
     "scripts": {
         "start": "node server.js",
-        "prepare": "husky install"
+        "prepare": "husky install",
+        "cov": "c8 npm run test",
+        "test": "SILENT=1 mocha --timeout 15000 {lib,test}/**/*.test.js"
     },
     "repository": {
         "type": "git",
@@ -31,6 +33,7 @@
     },
     "devDependencies": {
         "@babel/eslint-parser": "^7.19.1",
+        "c8": "^7.12.0",
         "eslint": "^8.31.0",
         "eslint-plugin-node": "^11.1.0",
         "eslint-plugin-promise": "^6.1.1",
@@ -39,6 +42,7 @@
         "html-validate": "^7.12.0",
         "husky": "^8.0.3",
         "lint-staged": "^13.1.0",
+        "mocha": "^10.2.0",
         "nodemon": "^2.0.20",
         "prettier": "^2.8.1"
     },
